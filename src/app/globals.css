@@ -1,8 +1,28 @@
 @import "tailwindcss";
-
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
+body { background: #0f0a1a; color: white; font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; }
+
+/* Rainbow gradient header line */
+.rainbow-line {
+  background: linear-gradient(90deg, #f59e0b, #ef4444, #ec4899, #8b5cf6, #3b82f6, #06b6d4, #10b981);
+}
+
+/* Platform card hover lift */
+.platform-card { transition: transform 0.2s, box-shadow 0.2s; }
+.platform-card:hover { transform: translateY(-2px); }
+
+/* Content card shimmer */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.04) 50%, transparent 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
 
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+::-webkit-scrollbar-track { background: #0f0a1a; }
+::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.3); border-radius: 3px; }

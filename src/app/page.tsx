@@ -185,51 +185,80 @@ export default function Home() {
   const types = posts.length > 0 ? [...new Set(posts.map(p => p.type))] : [];
 
   return (
-    <main className="min-h-screen bg-[#09090f] text-white">
-      {/* Ambient */}
-      <div className="fixed inset-0 -z-10 pointer-events-none">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-pink-600/15 blur-[130px]" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-amber-500/10 blur-[100px]" />
+    <main className="min-h-screen text-white">
+      {/* Ambient blobs */}
+      <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
+        <div className="absolute -top-32 right-0 w-[600px] h-[600px] rounded-full bg-purple-700/20 blur-[140px]" />
+        <div className="absolute top-1/2 left-0 w-[400px] h-[400px] rounded-full bg-pink-600/15 blur-[100px]" />
+        <div className="absolute bottom-0 right-1/4 w-[300px] h-[300px] rounded-full bg-amber-500/10 blur-[80px]" />
       </div>
 
+      {/* Rainbow top bar */}
+      <div className="rainbow-line h-1 w-full" />
+
       {/* Nav */}
-      <nav className="border-b border-white/5 backdrop-blur-xl bg-white/[0.02] sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-500 to-amber-500 flex items-center justify-center text-sm font-bold">S</div>
-            <span className="font-semibold text-lg">SocialAI</span>
+      <nav className="border-b border-white/8 backdrop-blur-xl bg-black/30 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-500 via-purple-500 to-amber-500 flex items-center justify-center text-sm font-black shadow-lg shadow-purple-500/30">✦</div>
+            </div>
+            <div>
+              <span className="font-black text-lg tracking-tight">SocialScribe</span>
+              <span className="hidden sm:inline text-xs text-white/30 ml-2">AI Content Studio</span>
+            </div>
           </div>
           <div className="flex items-center gap-3">
             {posts.length > 0 && (
-              <>
-                <span className="text-xs text-white/40">{posts.length} posts generated</span>
-                <button onClick={copyAll}
-                  className="px-3 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-xs text-white/60 hover:text-white hover:border-white/20 transition-all">
-                  Copy all
-                </button>
-              </>
+              <div className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-full bg-purple-500/15 border border-purple-500/25">
+                <span className="text-xs text-purple-300 font-medium">{posts.length} posts ready</span>
+              </div>
             )}
-            <button className="px-4 py-2 rounded-lg bg-gradient-to-r from-pink-600 to-amber-600 hover:from-pink-500 hover:to-amber-500 text-sm font-medium transition-all">
-              Upgrade to Pro
+            {posts.length > 0 && (
+              <button onClick={copyAll}
+                className="px-3 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-xs text-white/60 hover:text-white hover:border-white/20 transition-all">
+                Export all
+              </button>
+            )}
+            <button className="px-4 py-2 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-sm font-semibold transition-all shadow-lg shadow-pink-500/20">
+              Go Pro ✦
             </button>
           </div>
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto px-6 pt-14 pb-24">
-        {/* Hero */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-pink-500/30 bg-pink-500/10 text-pink-300 text-xs font-medium mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-pink-400 animate-pulse" />
-            AI Content Calendar · Hashtags · Engagement tips
+      <div className="max-w-7xl mx-auto px-6 pt-10 pb-24">
+        {/* Hero — creator studio splash */}
+        <div className="mb-10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-pink-500/30 bg-pink-500/10 text-pink-300 text-xs font-semibold mb-4">
+                <span className="w-1.5 h-1.5 rounded-full bg-pink-400 animate-pulse" />
+                AI Content Calendar · 5 Platforms · Hashtags · Engagement Tips
+              </div>
+              <h1 className="text-5xl md:text-6xl font-black tracking-tight leading-[0.95] mb-3">
+                30 days of content,<br />
+                <span className="bg-gradient-to-r from-pink-400 via-purple-400 to-amber-400 bg-clip-text text-transparent">written in seconds.</span>
+              </h1>
+              <p className="text-white/45 text-base max-w-xl">
+                Describe your brand or topic — AI builds a full content calendar with platform-optimised posts, scheduling, trending hashtags, and engagement tips.
+              </p>
+            </div>
+            {/* Platform icons strip */}
+            <div className="flex gap-2 flex-shrink-0">
+              {[
+                { name: 'Twitter/X', color: 'from-sky-500 to-sky-600', icon: '𝕏' },
+                { name: 'LinkedIn', color: 'from-blue-600 to-blue-700', icon: 'in' },
+                { name: 'Instagram', color: 'from-pink-500 to-purple-600', icon: '◉' },
+                { name: 'TikTok', color: 'from-red-500 to-pink-600', icon: '♪' },
+                { name: 'Facebook', color: 'from-indigo-500 to-indigo-600', icon: 'f' },
+              ].map(p => (
+                <div key={p.name} className={`w-11 h-11 rounded-xl bg-gradient-to-br ${p.color} flex items-center justify-center text-white font-black text-sm shadow-lg platform-card`}>
+                  {p.icon}
+                </div>
+              ))}
+            </div>
           </div>
-          <h1 className="text-5xl font-bold tracking-tight mb-3">
-            Generate a month of{" "}
-            <span className="bg-gradient-to-r from-pink-400 to-amber-400 bg-clip-text text-transparent">content in seconds</span>
-          </h1>
-          <p className="text-white/50 text-sm max-w-xl mx-auto">
-            AI writes platform-optimized posts, schedules them, generates trending hashtags, and gives you engagement tips for each post.
-          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
