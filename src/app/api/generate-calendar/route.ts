@@ -1,8 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
 const PLATFORM_TIPS: Record<string, { best_times: string[]; max_hashtags: number; format_tip: string }> = {
   "Twitter/X":  { best_times: ["9:00","12:00","17:00"], max_hashtags: 3, format_tip: "Keep under 280 chars. Use thread format for long content." },
   "LinkedIn":   { best_times: ["08:00","12:00","17:30"], max_hashtags: 5, format_tip: "Start with a hook. Use line breaks. 1300 chars optimal." },
@@ -12,21 +10,27 @@ const PLATFORM_TIPS: Record<string, { best_times: string[]; max_hashtags: number
 }
 
 export async function POST(req: NextRequest) {
-  const { topic, platforms, tone, weeks } = await req.json();
-  const postsPerWeek = platforms.length * 3;
-  const totalPosts = postsPerWeek * weeks;
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return NextResponse.json({ error: 'API key not configured. Add ANTHROPIC_API_KEY in Vercel → Settings → Environment Variables.' }, { status: 500 })
+  }
 
-  const today = new Date();
-  const dateStr = today.toISOString().split("T")[0];
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-  const message = await client.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 4000,
-    system: `You are a social media expert and content strategist. Generate engaging, platform-optimized content that drives real engagement.
+  try {
+    const { topic, platforms, tone, weeks } = await req.json();
+    const postsPerWeek = platforms.length * 3;
+    const totalPosts = postsPerWeek * weeks;
+    const today = new Date();
+    const dateStr = today.toISOString().split("T")[0];
+
+    const message = await client.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 4000,
+      system: `You are a social media expert and content strategist. Generate engaging, platform-optimized content that drives real engagement.
 Always return valid JSON only, no markdown.`,
-    messages: [{
-      role: "user",
-      content: `Generate ${totalPosts} social media posts for: "${topic}"
+      messages: [{
+        role: "user",
+        content: `Generate ${totalPosts} social media posts for: "${topic}"
 
 Requirements:
 - Platforms: ${platforms.join(", ")}
@@ -35,17 +39,16 @@ Requirements:
 - Mix content types: tip, story, question, promo, bts (behind-the-scenes), poll, carousel
 - Optimize post length per platform (Twitter: concise <280 chars, LinkedIn: 800-1300 chars, Instagram: 150-200 chars, TikTok: script-style)
 - Include relevant hashtags (3-8 per post based on platform best practice)
-- For each post include an "engagement_tip" — one actionable tip to maximise reach (e.g. "Post on Tuesday at 9am", "Reply to first 10 comments quickly")
+- For each post include an "engagement_tip" — one actionable tip to maximise reach
 - Include "hook" — the opening line to grab attention (first 10-15 words)
 
 Return JSON: {"posts": [{"platform": "...", "date": "YYYY-MM-DD", "time": "HH:MM", "content": "...", "hashtags": ["tag1","tag2"], "type": "tip|story|question|promo|bts|poll|carousel", "hook": "...", "engagement_tip": "..."}]}`
-    }]
-  });
+      }]
+    });
 
-  const text = message.content[0].type === "text" ? message.content[0].text : "{}";
-  try {
-    let data = JSON.parse(text);
-    // Inject platform static tips
+    const text = message.content[0].type === "text" ? message.content[0].text : "{}";
+    const match = text.match(/\{[\s\S]*\}/);
+    let data = match ? JSON.parse(match[0]) : { posts: [] };
     if (data.posts) {
       data.posts = data.posts.map((p: { platform: string }) => ({
         ...p,
@@ -53,14 +56,9 @@ Return JSON: {"posts": [{"platform": "...", "date": "YYYY-MM-DD", "time": "HH:MM
       }));
     }
     return NextResponse.json(data);
-  } catch {
-    const match = text.match(/\{[\s\S]*\}/);
-    if (match) {
-      try {
-        const data = JSON.parse(match[0]);
-        return NextResponse.json(data);
-      } catch { /* fall through */ }
-    }
-    return NextResponse.json({ posts: [] });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('Calendar API error:', msg)
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
 }

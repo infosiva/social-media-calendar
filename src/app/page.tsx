@@ -133,6 +133,7 @@ export default function Home() {
   const [weeks, setWeeks] = useState(2);
   const [posts, setPosts] = useState<PostIdea[]>([]);
   const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
   const [filterPlatform, setFilterPlatform] = useState("All");
   const [filterType, setFilterType] = useState("All");
   const [showInsights, setShowInsights] = useState(false);
@@ -142,6 +143,7 @@ export default function Home() {
 
   async function generate() {
     setLoading(true);
+    setApiError(null);
     try {
       const res = await fetch("/api/generate-calendar", {
         method: "POST",
@@ -149,9 +151,15 @@ export default function Home() {
         body: JSON.stringify({ topic, platforms, tone, weeks }),
       });
       const data = await res.json();
-      setPosts(data.posts || []);
-      setFilterPlatform("All");
-      setFilterType("All");
+      if (!res.ok || data.error) {
+        setApiError(data.error || 'Something went wrong. Please try again.');
+      } else {
+        setPosts(data.posts || []);
+        setFilterPlatform("All");
+        setFilterType("All");
+      }
+    } catch {
+      setApiError('Network error. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -348,6 +356,13 @@ export default function Home() {
                   ))}
                 </div>
                 <span className="ml-auto text-xs text-white/30">{filteredPosts.length} posts</span>
+              </div>
+            )}
+
+            {apiError && (
+              <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-center mb-4">
+                <p className="text-red-300 font-semibold mb-1">⚠️ Could not generate calendar</p>
+                <p className="text-red-300/70 text-sm">{apiError}</p>
               </div>
             )}
 
