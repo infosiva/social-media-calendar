@@ -1,6 +1,24 @@
 "use client";
 import { useState, useCallback } from "react";
 
+function useRateLimit(key: string, limit: number) {
+  const getUsage = useCallback(() => {
+    if (typeof window === 'undefined') return { count: 0, date: '' }
+    try { return JSON.parse(localStorage.getItem(key) || '{"count":0,"date":""}') } catch { return { count: 0, date: '' } }
+  }, [key])
+  const today = new Date().toISOString().split('T')[0]
+  const usage = getUsage()
+  const count = usage.date === today ? usage.count : 0
+  const remaining = Math.max(0, limit - count)
+  const increment = useCallback(() => {
+    const d = new Date().toISOString().split('T')[0]
+    const u = getUsage()
+    const c = u.date === d ? u.count + 1 : 1
+    localStorage.setItem(key, JSON.stringify({ count: c, date: d }))
+  }, [key, getUsage])
+  return { remaining, increment, isLimited: remaining === 0 }
+}
+
 const PLATFORMS = ["Twitter/X", "LinkedIn", "Instagram", "Facebook", "TikTok"];
 const TONES = ["Professional", "Casual", "Humorous", "Inspirational", "Educational"];
 const TYPE_LABELS: Record<string, string> = {
@@ -127,6 +145,7 @@ function PlatformInsight({ platform, tips }: { platform: string; tips: PlatformT
 }
 
 export default function Home() {
+  const { remaining, increment, isLimited } = useRateLimit('socialscribe-usage', 3)
   const [topic, setTopic] = useState("");
   const [platforms, setPlatforms] = useState<string[]>(["Twitter/X", "LinkedIn"]);
   const [tone, setTone] = useState("Professional");
@@ -142,6 +161,8 @@ export default function Home() {
     setPlatforms((prev) => prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]);
 
   async function generate() {
+    if (isLimited) return
+    increment()
     setLoading(true);
     setApiError(null);
     try {
@@ -322,15 +343,22 @@ export default function Home() {
                   </div>
                 </div>
 
-                <button onClick={generate} disabled={!topic || loading}
-                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-pink-600 to-amber-600 hover:from-pink-500 hover:to-amber-500 font-semibold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-                  {loading ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Generating...
-                    </>
-                  ) : "✦ Generate calendar"}
-                </button>
+                {isLimited ? (
+                  <div className="w-full py-3.5 rounded-xl bg-white/[0.04] border border-amber-500/20 text-center">
+                    <p className="text-amber-400 text-sm font-semibold">Daily limit reached (3 free / day)</p>
+                    <p className="text-xs text-amber-700 mt-0.5">Upgrade to Pro for unlimited calendars</p>
+                  </div>
+                ) : (
+                  <button onClick={generate} disabled={!topic || loading}
+                    className="w-full py-3.5 rounded-xl bg-gradient-to-r from-pink-600 to-amber-600 hover:from-pink-500 hover:to-amber-500 font-semibold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                    {loading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Generating...
+                      </>
+                    ) : `✦ Generate calendar (${remaining} left today)`}
+                  </button>
+                )}
               </div>
             </div>
 
@@ -421,6 +449,40 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Pricing section */}
+      <section id="pricing" className="border-t border-white/5 px-6 py-20">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="text-4xl font-black tracking-tight mb-2">
+              <span className="bg-gradient-to-r from-pink-400 to-amber-400 bg-clip-text text-transparent">Simple pricing</span>
+            </h2>
+            <p className="text-white/35 text-sm">3 free calendars per day · No card required</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-px border border-white/10 rounded-2xl overflow-hidden">
+            {[
+              { name: 'Free', price: '$0', sub: 'forever', features: ['3 calendars / day', '5 platforms', 'Up to 4 weeks', 'Engagement tips', 'Trending hashtags', 'Copy with 1 click'], cta: 'Current plan', highlight: false },
+              { name: 'Pro', price: '$9', sub: '/month', features: ['Unlimited calendars', 'Schedule directly to socials', 'Brand voice memory', 'Analytics preview', 'Bulk export (CSV)', 'Priority AI speed'], cta: 'Go Pro ✦', highlight: true },
+            ].map(plan => (
+              <div key={plan.name} className={`p-8 ${plan.highlight ? 'bg-gradient-to-br from-pink-950/40 to-purple-950/40' : 'bg-white/[0.02]'}`}>
+                <div className={`text-xs font-bold uppercase tracking-widest mb-1 ${plan.highlight ? 'text-pink-400' : 'text-white/25'}`}>{plan.name}</div>
+                <div className={`text-4xl font-black mb-0.5 ${plan.highlight ? 'text-white' : 'text-white/40'}`}>{plan.price}</div>
+                <div className={`text-sm mb-5 ${plan.highlight ? 'text-pink-600' : 'text-white/20'}`}>{plan.sub}</div>
+                <ul className="space-y-2.5 mb-7">
+                  {plan.features.map(f => (
+                    <li key={f} className={`flex items-start gap-2 text-sm ${plan.highlight ? 'text-white/70' : 'text-white/30'}`}>
+                      <span className={plan.highlight ? 'text-pink-400 mt-0.5' : 'text-white/20 mt-0.5'}>✓</span> {f}
+                    </li>
+                  ))}
+                </ul>
+                <button className={`w-full py-3 rounded-xl text-sm font-bold transition-all ${plan.highlight ? 'bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500' : 'border border-white/10 text-white/30 cursor-default'}`}>
+                  {plan.cta}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
     </main>
   );
 }
