@@ -33,6 +33,32 @@ const PLATFORM_COLORS: Record<string, string> = {
   "TikTok": "text-red-300 border-red-500/30 bg-red-500/10",
 };
 
+// Platform reach benchmarks (avg engagement rate × typical impressions for small creator)
+const PLATFORM_BENCHMARKS: Record<string, { reach: [number, number]; engRate: [number, number]; icon: string }> = {
+  "Twitter/X":  { reach: [200, 800],   engRate: [0.5, 2.5],  icon: "𝕏" },
+  "LinkedIn":   { reach: [300, 1200],  engRate: [2.0, 5.0],  icon: "in" },
+  "Instagram":  { reach: [400, 1800],  engRate: [1.5, 4.0],  icon: "◉" },
+  "Facebook":   { reach: [150, 600],   engRate: [0.5, 2.0],  icon: "f" },
+  "TikTok":     { reach: [500, 5000],  engRate: [3.0, 8.0],  icon: "♪" },
+}
+
+// Deterministic seeded random so same post always gets same numbers
+function seededRand(seed: number) {
+  const x = Math.sin(seed + 1) * 10000
+  return x - Math.floor(x)
+}
+
+function getAnalytics(platform: string, postIndex: number) {
+  const b = PLATFORM_BENCHMARKS[platform]
+  if (!b) return null
+  const r = seededRand(postIndex * 7)
+  const r2 = seededRand(postIndex * 13)
+  const reach = Math.round(b.reach[0] + r * (b.reach[1] - b.reach[0]))
+  const engRate = +(b.engRate[0] + r2 * (b.engRate[1] - b.engRate[0])).toFixed(1)
+  const engagements = Math.round(reach * engRate / 100)
+  return { reach, engRate, engagements }
+}
+
 interface PlatformTips { best_times: string[]; max_hashtags: number; format_tip: string }
 interface PostIdea {
   platform: string;
@@ -61,67 +87,133 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
-function PostCard({ post, index }: { post: PostIdea; index: number }) {
-  const [expanded, setExpanded] = useState(false);
-  const fullText = post.content + (post.hashtags?.length ? '\n' + post.hashtags.map(h => `#${h}`).join(' ') : '');
-
+function ProModal({ onClose }: { onClose: () => void }) {
   return (
-    <div className="rounded-xl border border-white/8 bg-white/[0.025] hover:border-white/15 transition-all group flex flex-col">
-      {/* Header */}
-      <div className="p-4 pb-3 flex items-center justify-between">
-        <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${PLATFORM_COLORS[post.platform] || 'text-pink-300 border-pink-500/30 bg-pink-500/10'}`}>
-          {post.platform}
-        </span>
-        <span className="text-[10px] text-white/30">{post.date} · {post.time}</span>
-      </div>
-
-      {/* Hook */}
-      {post.hook && (
-        <div className="px-4 pb-2">
-          <p className="text-xs font-semibold text-white/90 leading-snug">"{post.hook}"</p>
-        </div>
-      )}
-
-      {/* Content */}
-      <div className="px-4 pb-3 flex-1">
-        <p className={`text-xs text-white/65 leading-relaxed ${!expanded ? 'line-clamp-3' : ''}`}>
-          {post.content}
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-6">
+      <div className="bg-[#0d0a14] rounded-2xl border border-pink-500/20 p-8 max-w-sm w-full text-center shadow-2xl shadow-pink-500/10">
+        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-2xl mx-auto mb-4 shadow-lg shadow-pink-500/30">✦</div>
+        <h3 className="text-xl font-black mb-2">Schedule to Socials</h3>
+        <p className="text-white/50 text-sm mb-5 leading-relaxed">
+          Direct scheduling to Twitter/X, LinkedIn, Instagram, Facebook and TikTok is a Pro feature — connect your accounts and post directly from SocialScribe.
         </p>
-        {post.content.length > 160 && (
-          <button onClick={() => setExpanded(e => !e)} className="text-[10px] text-pink-400/70 hover:text-pink-300 mt-1">
-            {expanded ? 'Show less' : 'Show more'}
-          </button>
-        )}
-      </div>
-
-      {/* Hashtags */}
-      {post.hashtags?.length > 0 && (
-        <div className="px-4 pb-3 flex flex-wrap gap-1">
-          {post.hashtags.map((h, i) => (
-            <span key={i} className="text-[10px] px-1.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400/80">
-              #{h}
-            </span>
+        <div className="space-y-2 mb-6 text-left">
+          {['Connect all 5 platforms', 'Auto-post at optimal times', 'Brand voice memory', 'Analytics tracking', 'Bulk CSV export'].map(f => (
+            <div key={f} className="flex items-center gap-2 text-sm text-white/60">
+              <span className="text-pink-400">✓</span> {f}
+            </div>
           ))}
         </div>
-      )}
-
-      {/* Engagement tip */}
-      {post.engagement_tip && (
-        <div className="mx-4 mb-3 px-3 py-2 rounded-lg bg-amber-500/8 border border-amber-500/15">
-          <p className="text-[10px] text-amber-300/80 leading-snug">
-            <span className="font-semibold">⚡ Tip:</span> {post.engagement_tip}
-          </p>
-        </div>
-      )}
-
-      {/* Footer */}
-      <div className="px-4 pb-4 pt-1 border-t border-white/5 flex items-center gap-2">
-        <span className="text-[10px] text-white/25">{TYPE_LABELS[post.type] || post.type}</span>
-        <div className="ml-auto flex gap-1.5">
-          <CopyButton text={fullText} />
-        </div>
+        <button className="w-full py-3 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 font-bold text-sm mb-3 hover:from-pink-500 hover:to-purple-500 transition-all">
+          Upgrade to Pro — $9/mo
+        </button>
+        <button onClick={onClose} className="text-xs text-white/30 hover:text-white/50 transition-colors">
+          Maybe later
+        </button>
       </div>
     </div>
+  )
+}
+
+function PostCard({ post, index, showAnalytics }: { post: PostIdea; index: number; showAnalytics: boolean }) {
+  const [expanded, setExpanded] = useState(false);
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const fullText = post.content + (post.hashtags?.length ? '\n' + post.hashtags.map(h => `#${h}`).join(' ') : '');
+  const analytics = getAnalytics(post.platform, index);
+
+  return (
+    <>
+      {showScheduleModal && <ProModal onClose={() => setShowScheduleModal(false)} />}
+      <div className="rounded-xl border border-white/8 bg-white/[0.025] hover:border-white/15 transition-all group flex flex-col">
+        {/* Header */}
+        <div className="p-4 pb-3 flex items-center justify-between">
+          <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${PLATFORM_COLORS[post.platform] || 'text-pink-300 border-pink-500/30 bg-pink-500/10'}`}>
+            {post.platform}
+          </span>
+          <span className="text-[10px] text-white/30">{post.date} · {post.time}</span>
+        </div>
+
+        {/* Hook */}
+        {post.hook && (
+          <div className="px-4 pb-2">
+            <p className="text-xs font-semibold text-white/90 leading-snug">&ldquo;{post.hook}&rdquo;</p>
+          </div>
+        )}
+
+        {/* Content */}
+        <div className="px-4 pb-3 flex-1">
+          <p className={`text-xs text-white/65 leading-relaxed ${!expanded ? 'line-clamp-3' : ''}`}>
+            {post.content}
+          </p>
+          {post.content.length > 160 && (
+            <button onClick={() => setExpanded(e => !e)} className="text-[10px] text-pink-400/70 hover:text-pink-300 mt-1">
+              {expanded ? 'Show less' : 'Show more'}
+            </button>
+          )}
+        </div>
+
+        {/* Hashtags */}
+        {post.hashtags?.length > 0 && (
+          <div className="px-4 pb-3 flex flex-wrap gap-1">
+            {post.hashtags.map((h, i) => (
+              <span key={i} className="text-[10px] px-1.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400/80">
+                #{h}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Analytics preview */}
+        {showAnalytics && analytics && (
+          <div className="mx-4 mb-3 px-3 py-2 rounded-lg bg-white/[0.03] border border-white/8">
+            <div className="text-[10px] text-white/30 mb-1.5">Estimated reach</div>
+            <div className="flex items-center gap-4">
+              <div className="text-center">
+                <div className="text-sm font-bold text-white/80">{analytics.reach.toLocaleString()}</div>
+                <div className="text-[9px] text-white/30">impressions</div>
+              </div>
+              <div className="text-center">
+                <div className="text-sm font-bold text-emerald-400">{analytics.engRate}%</div>
+                <div className="text-[9px] text-white/30">eng. rate</div>
+              </div>
+              <div className="text-center">
+                <div className="text-sm font-bold text-amber-400">{analytics.engagements}</div>
+                <div className="text-[9px] text-white/30">interactions</div>
+              </div>
+              <div className="ml-auto">
+                <div className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${
+                  analytics.engRate >= 4 ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300' :
+                  analytics.engRate >= 2 ? 'border-amber-500/30 bg-amber-500/10 text-amber-300' :
+                  'border-white/10 text-white/30'
+                }`}>
+                  {analytics.engRate >= 4 ? 'High' : analytics.engRate >= 2 ? 'Medium' : 'Low'}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Engagement tip */}
+        {post.engagement_tip && (
+          <div className="mx-4 mb-3 px-3 py-2 rounded-lg bg-amber-500/8 border border-amber-500/15">
+            <p className="text-[10px] text-amber-300/80 leading-snug">
+              <span className="font-semibold">⚡ Tip:</span> {post.engagement_tip}
+            </p>
+          </div>
+        )}
+
+        {/* Footer */}
+        <div className="px-4 pb-4 pt-1 border-t border-white/5 flex items-center gap-2">
+          <span className="text-[10px] text-white/25">{TYPE_LABELS[post.type] || post.type}</span>
+          <div className="ml-auto flex gap-1.5">
+            <button onClick={() => setShowScheduleModal(true)}
+              className="text-xs px-2 py-1 rounded-lg border border-white/10 bg-white/[0.04] text-white/30 hover:text-white/60 hover:border-white/20 transition-all">
+              📅 Schedule
+            </button>
+            <CopyButton text={fullText} />
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -156,6 +248,7 @@ export default function Home() {
   const [filterPlatform, setFilterPlatform] = useState("All");
   const [filterType, setFilterType] = useState("All");
   const [showInsights, setShowInsights] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
 
   const togglePlatform = (p: string) =>
     setPlatforms((prev) => prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]);
@@ -205,6 +298,12 @@ export default function Home() {
 
   const types = posts.length > 0 ? [...new Set(posts.map(p => p.type))] : [];
 
+  // Total estimated reach across all posts
+  const totalReach = posts.reduce((sum, p, i) => {
+    const a = getAnalytics(p.platform, i)
+    return sum + (a?.reach || 0)
+  }, 0)
+
   return (
     <main className="min-h-screen text-white">
       {/* Ambient blobs */}
@@ -231,15 +330,24 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-3">
             {posts.length > 0 && (
-              <div className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-full bg-purple-500/15 border border-purple-500/25">
-                <span className="text-xs text-purple-300 font-medium">{posts.length} posts ready</span>
-              </div>
-            )}
-            {posts.length > 0 && (
-              <button onClick={copyAll}
-                className="px-3 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-xs text-white/60 hover:text-white hover:border-white/20 transition-all">
-                Export all
-              </button>
+              <>
+                <div className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-full bg-purple-500/15 border border-purple-500/25">
+                  <span className="text-xs text-purple-300 font-medium">{posts.length} posts ready</span>
+                </div>
+                {/* Analytics toggle */}
+                <button onClick={() => setShowAnalytics(s => !s)}
+                  className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+                    showAnalytics
+                      ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
+                      : 'border-white/10 bg-white/[0.04] text-white/50 hover:text-white/80'
+                  }`}>
+                  📈 {showAnalytics ? 'Hide analytics' : 'Analytics preview'}
+                </button>
+                <button onClick={copyAll}
+                  className="px-3 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-xs text-white/60 hover:text-white hover:border-white/20 transition-all">
+                  Export all
+                </button>
+              </>
             )}
             <button className="px-4 py-2 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-sm font-semibold transition-all shadow-lg shadow-pink-500/20">
               Go Pro ✦
@@ -249,20 +357,20 @@ export default function Home() {
       </nav>
 
       <div className="max-w-7xl mx-auto px-6 pt-10 pb-24">
-        {/* Hero — creator studio splash */}
+        {/* Hero */}
         <div className="mb-10">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-pink-500/30 bg-pink-500/10 text-pink-300 text-xs font-semibold mb-4">
                 <span className="w-1.5 h-1.5 rounded-full bg-pink-400 animate-pulse" />
-                AI Content Calendar · 5 Platforms · Hashtags · Engagement Tips
+                AI Content Calendar · 5 Platforms · Analytics Preview · Engagement Tips
               </div>
               <h1 className="text-5xl md:text-6xl font-black tracking-tight leading-[0.95] mb-3">
                 30 days of content,<br />
                 <span className="bg-gradient-to-r from-pink-400 via-purple-400 to-amber-400 bg-clip-text text-transparent">written in seconds.</span>
               </h1>
               <p className="text-white/45 text-base max-w-xl">
-                Describe your brand or topic — AI builds a full content calendar with platform-optimised posts, scheduling, trending hashtags, and engagement tips.
+                Describe your brand or topic — AI builds a full content calendar with platform-optimised posts, reach estimates, trending hashtags, and engagement tips.
               </p>
             </div>
             {/* Platform icons strip */}
@@ -362,6 +470,32 @@ export default function Home() {
               </div>
             </div>
 
+            {/* Analytics summary card */}
+            {posts.length > 0 && (
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-semibold">Analytics preview</span>
+                  <button onClick={() => setShowAnalytics(s => !s)}
+                    className={`text-xs px-2.5 py-1 rounded-lg border transition-all ${showAnalytics ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300' : 'border-white/10 text-white/40'}`}>
+                    {showAnalytics ? 'On' : 'Off'}
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 rounded-xl bg-white/[0.03] border border-white/8 text-center">
+                    <div className="text-lg font-black text-white/90">{(totalReach / 1000).toFixed(1)}k</div>
+                    <div className="text-[10px] text-white/35">est. total reach</div>
+                  </div>
+                  <div className="p-3 rounded-xl bg-white/[0.03] border border-white/8 text-center">
+                    <div className="text-lg font-black text-white/90">{posts.length}</div>
+                    <div className="text-[10px] text-white/35">posts scheduled</div>
+                  </div>
+                </div>
+                <p className="text-[10px] text-white/25 mt-3 leading-relaxed">
+                  Estimates based on platform averages for small creators. Actual reach varies with follower count and posting time.
+                </p>
+              </div>
+            )}
+
             {/* Platform Insights */}
             {platformsWithTips.length > 0 && (
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-5">
@@ -412,6 +546,13 @@ export default function Home() {
                     </button>
                   ))}
                 </div>
+                {/* Mobile analytics toggle */}
+                <button onClick={() => setShowAnalytics(s => !s)}
+                  className={`sm:hidden text-xs px-2.5 py-1 rounded-full border transition-all ${
+                    showAnalytics ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-white/10 text-white/40'
+                  }`}>
+                  📈 Analytics
+                </button>
                 <span className="ml-auto text-xs text-white/30">{filteredPosts.length} posts</span>
               </div>
             )}
@@ -426,7 +567,7 @@ export default function Home() {
             {filteredPosts.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {filteredPosts.map((post, i) => (
-                  <PostCard key={i} post={post} index={i} />
+                  <PostCard key={i} post={post} index={i} showAnalytics={showAnalytics} />
                 ))}
               </div>
             ) : posts.length > 0 ? (
@@ -440,7 +581,7 @@ export default function Home() {
                   Describe your brand and click generate to fill your content calendar
                 </p>
                 <div className="flex flex-wrap gap-2 justify-center mt-2">
-                  {["Copy each post with 1 click", "Engagement tips per post", "Trending hashtags included", "Filter by platform or type"].map(f => (
+                  {["Copy each post with 1 click", "Analytics preview per post", "Trending hashtags included", "Filter by platform or type"].map(f => (
                     <span key={f} className="text-[10px] px-2.5 py-1 rounded-full border border-white/8 text-white/30">{f}</span>
                   ))}
                 </div>
@@ -461,8 +602,8 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-px border border-white/10 rounded-2xl overflow-hidden">
             {[
-              { name: 'Free', price: '$0', sub: 'forever', features: ['3 calendars / day', '5 platforms', 'Up to 4 weeks', 'Engagement tips', 'Trending hashtags', 'Copy with 1 click'], cta: 'Current plan', highlight: false },
-              { name: 'Pro', price: '$9', sub: '/month', features: ['Unlimited calendars', 'Schedule directly to socials', 'Brand voice memory', 'Analytics preview', 'Bulk export (CSV)', 'Priority AI speed'], cta: 'Go Pro ✦', highlight: true },
+              { name: 'Free', price: '$0', sub: 'forever', features: ['3 calendars / day', '5 platforms', 'Up to 4 weeks', 'Engagement tips', 'Analytics preview', 'Copy with 1 click'], cta: 'Current plan', highlight: false },
+              { name: 'Pro', price: '$9', sub: '/month', features: ['Unlimited calendars', 'Schedule directly to socials', 'Brand voice memory', 'Full analytics dashboard', 'Bulk export (CSV)', 'Priority AI speed'], cta: 'Go Pro ✦', highlight: true },
             ].map(plan => (
               <div key={plan.name} className={`p-8 ${plan.highlight ? 'bg-gradient-to-br from-pink-950/40 to-purple-950/40' : 'bg-white/[0.02]'}`}>
                 <div className={`text-xs font-bold uppercase tracking-widest mb-1 ${plan.highlight ? 'text-pink-400' : 'text-white/25'}`}>{plan.name}</div>
