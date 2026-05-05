@@ -1,5 +1,5 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
+import { callAI } from "@/lib/ai";
 
 const PLATFORM_TIPS: Record<string, { best_times: string[]; max_hashtags: number; format_tip: string }> = {
   "Twitter/X":  { best_times: ["9:00","12:00","17:00"], max_hashtags: 3, format_tip: "Keep under 280 chars. Use thread format for long content." },
@@ -10,12 +10,6 @@ const PLATFORM_TIPS: Record<string, { best_times: string[]; max_hashtags: number
 }
 
 export async function POST(req: NextRequest) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return NextResponse.json({ error: 'API key not configured. Add ANTHROPIC_API_KEY in Vercel → Settings → Environment Variables.' }, { status: 500 })
-  }
-
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
   try {
     const { topic, platforms, tone, weeks } = await req.json();
     const postsPerWeek = platforms.length * 3;
@@ -23,12 +17,10 @@ export async function POST(req: NextRequest) {
     const today = new Date();
     const dateStr = today.toISOString().split("T")[0];
 
-    const message = await client.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 4000,
-      system: `You are a social media expert and content strategist. Generate engaging, platform-optimized content that drives real engagement.
+    const { text } = await callAI(
+      `You are a social media expert and content strategist. Generate engaging, platform-optimized content that drives real engagement.
 Always return valid JSON only, no markdown.`,
-      messages: [{
+      [{
         role: "user",
         content: `Generate ${totalPosts} social media posts for: "${topic}"
 
@@ -42,11 +34,12 @@ Requirements:
 - For each post include an "engagement_tip" — one actionable tip to maximise reach
 - Include "hook" — the opening line to grab attention (first 10-15 words)
 
-Return JSON: {"posts": [{"platform": "...", "date": "YYYY-MM-DD", "time": "HH:MM", "content": "...", "hashtags": ["tag1","tag2"], "type": "tip|story|question|promo|bts|poll|carousel", "hook": "...", "engagement_tip": "..."}]}`
-      }]
-    });
+Return JSON: {"posts": [{"platform": "...", "date": "YYYY-MM-DD", "time": "HH:MM", "content": "...", "hashtags": ["tag1","tag2"], "type": "tip|story|question|promo|bts|poll|carousel", "hook": "...", "engagement_tip": "..."}]}`,
+      }],
+      4000,
+      'best',
+    )
 
-    const text = message.content[0].type === "text" ? message.content[0].text : "{}";
     const match = text.match(/\{[\s\S]*\}/);
     let data = match ? JSON.parse(match[0]) : { posts: [] };
     if (data.posts) {
