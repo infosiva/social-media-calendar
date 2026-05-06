@@ -313,28 +313,29 @@ export default function Home() {
         <div className="absolute bottom-0 right-1/4 w-[300px] h-[300px] rounded-full bg-amber-500/10 blur-[80px]" />
       </div>
 
-      {/* Rainbow top bar */}
-      <div className="rainbow-line h-1 w-full" />
+      {/* Violet gradient top line — replaces rainbow bar */}
+      <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent, #7c3aed, #a855f7, #7c3aed, transparent)' }} />
 
-      {/* Nav */}
-      <nav className="border-b border-white/8 backdrop-blur-xl bg-black/30 sticky top-0 z-50">
+      {/* Nav — Creator Studio */}
+      <nav className="border-b border-white/5 backdrop-blur-xl sticky top-0 z-50" style={{ background: 'rgba(8,8,15,0.92)' }}>
         <div className="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-500 via-purple-500 to-amber-500 flex items-center justify-center text-sm font-black shadow-lg shadow-purple-500/30">✦</div>
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center text-sm font-black" style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>✦</div>
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-lg tracking-tight text-white">SocialScribe</span>
+              <span className="hidden sm:inline text-xs text-white/40 border-l border-white/10 pl-2 ml-1">Content Studio</span>
             </div>
-            <div>
-              <span className="font-black text-lg tracking-tight">SocialScribe</span>
-              <span className="hidden sm:inline text-xs text-white/30 ml-2">AI Content Studio</span>
+            {/* Platform dots */}
+            <div className="hidden sm:flex items-center gap-1.5 ml-2">
+              <span className="w-2 h-2 rounded-full bg-sky-400" title="Twitter/X" />
+              <span className="w-2 h-2 rounded-full bg-blue-500" title="LinkedIn" />
+              <span className="w-2 h-2 rounded-full bg-pink-500" title="Instagram" />
+              <span className="w-2 h-2 rounded-full bg-red-500" title="TikTok" />
             </div>
           </div>
           <div className="flex items-center gap-3">
             {posts.length > 0 && (
               <>
-                <div className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-full bg-purple-500/15 border border-purple-500/25">
-                  <span className="text-xs text-purple-300 font-medium">{posts.length} posts ready</span>
-                </div>
-                {/* Analytics toggle */}
                 <button onClick={() => setShowAnalytics(s => !s)}
                   className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
                     showAnalytics
@@ -344,12 +345,12 @@ export default function Home() {
                   📈 {showAnalytics ? 'Hide analytics' : 'Analytics preview'}
                 </button>
                 <button onClick={copyAll}
-                  className="px-3 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-xs text-white/60 hover:text-white hover:border-white/20 transition-all">
-                  Export all
+                  className="px-3 py-1.5 rounded-lg border border-white/15 text-xs text-white/60 hover:text-white hover:border-white/30 transition-all">
+                  Export
                 </button>
               </>
             )}
-            <button className="px-4 py-2 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-sm font-semibold transition-all shadow-lg shadow-pink-500/20">
+            <button className="px-4 py-2 rounded-lg text-sm font-semibold transition-all" style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: '#fff' }}>
               Go Pro ✦
             </button>
           </div>
@@ -357,35 +358,44 @@ export default function Home() {
       </nav>
 
       <div className="max-w-7xl mx-auto px-6 pt-10 pb-24">
-        {/* Hero */}
+        {/* Hero — Creator Studio */}
         <div className="mb-10">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-pink-500/30 bg-pink-500/10 text-pink-300 text-xs font-semibold mb-4">
-                <span className="w-1.5 h-1.5 rounded-full bg-pink-400 animate-pulse" />
-                AI Content Calendar · 5 Platforms · Analytics Preview · Engagement Tips
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+            {/* Left: headline */}
+            <div className="flex-1">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-300 text-xs font-semibold mb-5">
+                <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+                AI-Powered Content Studio
               </div>
-              <h1 className="text-5xl md:text-6xl font-black tracking-tight leading-[0.95] mb-3">
+              <h1 className="text-5xl md:text-6xl font-bold tracking-tight leading-[0.95] mb-4 text-white">
                 30 days of content,<br />
-                <span className="bg-gradient-to-r from-pink-400 via-purple-400 to-amber-400 bg-clip-text text-transparent">written in seconds.</span>
+                <span className="bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent">written in 30 seconds.</span>
               </h1>
               <p className="text-white/45 text-base max-w-xl">
                 Describe your brand or topic — AI builds a full content calendar with platform-optimised posts, reach estimates, trending hashtags, and engagement tips.
               </p>
             </div>
-            {/* Platform icons strip */}
-            <div className="flex gap-2 flex-shrink-0">
-              {[
-                { name: 'Twitter/X', color: 'from-sky-500 to-sky-600', icon: '𝕏' },
-                { name: 'LinkedIn', color: 'from-blue-600 to-blue-700', icon: 'in' },
-                { name: 'Instagram', color: 'from-pink-500 to-purple-600', icon: '◉' },
-                { name: 'TikTok', color: 'from-red-500 to-pink-600', icon: '♪' },
-                { name: 'Facebook', color: 'from-indigo-500 to-indigo-600', icon: 'f' },
-              ].map(p => (
-                <div key={p.name} className={`w-11 h-11 rounded-xl bg-gradient-to-br ${p.color} flex items-center justify-center text-white font-black text-sm shadow-lg platform-card`}>
-                  {p.icon}
+            {/* Right: Platform cards grid */}
+            <div className="flex-shrink-0">
+              <div className="grid grid-cols-3 gap-2 w-fit">
+                {[
+                  { name: 'Twitter/X', bg: 'rgba(14,165,233,0.15)', border: 'rgba(14,165,233,0.3)', icon: '𝕏', color: '#38bdf8' },
+                  { name: 'LinkedIn', bg: 'rgba(59,130,246,0.15)', border: 'rgba(59,130,246,0.3)', icon: 'in', color: '#60a5fa' },
+                  { name: 'Instagram', bg: 'rgba(236,72,153,0.15)', border: 'rgba(236,72,153,0.3)', icon: '📸', color: '#f472b6' },
+                  { name: 'TikTok', bg: 'rgba(239,68,68,0.15)', border: 'rgba(239,68,68,0.3)', icon: '♪', color: '#f87171' },
+                  { name: 'Facebook', bg: 'rgba(99,102,241,0.15)', border: 'rgba(99,102,241,0.3)', icon: 'f', color: '#818cf8' },
+                ].map(p => (
+                  <div key={p.name} className="w-20 h-20 rounded-2xl flex flex-col items-center justify-center gap-1 transition-transform hover:scale-105"
+                    style={{ background: p.bg, border: `1px solid ${p.border}` }}>
+                    <span className="text-2xl font-black" style={{ color: p.color }}>{p.icon}</span>
+                    <span className="text-[9px] font-medium" style={{ color: p.color }}>{p.name}</span>
+                  </div>
+                ))}
+                {/* Placeholder 6th cell for grid symmetry */}
+                <div className="w-20 h-20 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(124,58,237,0.08)', border: '1px dashed rgba(124,58,237,0.2)' }}>
+                  <span className="text-white/20 text-xs font-medium">+more</span>
                 </div>
-              ))}
+              </div>
             </div>
           </div>
         </div>
