@@ -310,9 +310,9 @@ export default function Home() {
       <div className="noise-overlay" aria-hidden="true" />
 
       {/* Ambient orbs — replaces static blobs */}
-      <div className="orb orb-1" style={{ '--theme-primary': '#7c3aed' } as React.CSSProperties} aria-hidden="true" />
-      <div className="orb orb-2" style={{ '--theme-secondary': '#ec4899' } as React.CSSProperties} aria-hidden="true" />
-      <div className="orb orb-3" aria-hidden="true" />
+      <div className="liquid-blob liquid-blob-1" style={{ '--theme-primary': '#7c3aed' } as React.CSSProperties} aria-hidden="true" />
+      <div className="liquid-blob liquid-blob-2" style={{ '--theme-secondary': '#ec4899' } as React.CSSProperties} aria-hidden="true" />
+      <div className="liquid-blob liquid-blob-3" aria-hidden="true" />
 
       {/* Glow line top */}
       <div className="glow-line" style={{ '--theme-primary': '#a855f7' } as React.CSSProperties} />
