@@ -4,7 +4,7 @@ import SharedNavbar from '@/components/SharedNavbar'
 import SharedFooter from '@/components/SharedFooter'
 import type { BrandConfig } from '@/components/SharedNavbar'
 
-export const brand: BrandConfig = {
+const brand: BrandConfig = {
   name: 'SocialAI',
   tagline: 'Generate weeks of social media content in seconds with AI.',
   icon: '📅',
