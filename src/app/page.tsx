@@ -305,16 +305,17 @@ export default function Home() {
   }, 0)
 
   return (
-    <main className="min-h-screen text-white">
-      {/* Ambient blobs */}
-      <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
-        <div className="absolute -top-32 right-0 w-[600px] h-[600px] rounded-full bg-purple-700/20 blur-[140px]" />
-        <div className="absolute top-1/2 left-0 w-[400px] h-[400px] rounded-full bg-pink-600/15 blur-[100px]" />
-        <div className="absolute bottom-0 right-1/4 w-[300px] h-[300px] rounded-full bg-amber-500/10 blur-[80px]" />
-      </div>
+    <main className="min-h-screen text-white relative">
+      {/* Noise overlay */}
+      <div className="noise-overlay" aria-hidden="true" />
 
-      {/* Violet gradient top line — replaces rainbow bar */}
-      <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent, #7c3aed, #a855f7, #7c3aed, transparent)' }} />
+      {/* Ambient orbs — replaces static blobs */}
+      <div className="orb orb-1" style={{ '--theme-primary': '#7c3aed' } as React.CSSProperties} aria-hidden="true" />
+      <div className="orb orb-2" style={{ '--theme-secondary': '#ec4899' } as React.CSSProperties} aria-hidden="true" />
+      <div className="orb orb-3" aria-hidden="true" />
+
+      {/* Glow line top */}
+      <div className="glow-line" style={{ '--theme-primary': '#a855f7' } as React.CSSProperties} />
 
       {/* Nav — Creator Studio */}
       <nav className="border-b border-white/5 backdrop-blur-xl sticky top-0 z-50" style={{ background: 'rgba(8,8,15,0.92)' }}>
