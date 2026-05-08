@@ -1,23 +1,7 @@
 "use client";
 import { useState, useCallback } from "react";
-
-function useRateLimit(key: string, limit: number) {
-  const getUsage = useCallback(() => {
-    if (typeof window === 'undefined') return { count: 0, date: '' }
-    try { return JSON.parse(localStorage.getItem(key) || '{"count":0,"date":""}') } catch { return { count: 0, date: '' } }
-  }, [key])
-  const today = new Date().toISOString().split('T')[0]
-  const usage = getUsage()
-  const count = usage.date === today ? usage.count : 0
-  const remaining = Math.max(0, limit - count)
-  const increment = useCallback(() => {
-    const d = new Date().toISOString().split('T')[0]
-    const u = getUsage()
-    const c = u.date === d ? u.count + 1 : 1
-    localStorage.setItem(key, JSON.stringify({ count: c, date: d }))
-  }, [key, getUsage])
-  return { remaining, increment, isLimited: remaining === 0 }
-}
+import { useGate } from '@/lib/shared/useGate'
+import RegisterGate from '@/lib/shared/RegisterGate'
 
 const PLATFORMS = ["Twitter/X", "LinkedIn", "Instagram", "Facebook", "TikTok"];
 const TONES = ["Professional", "Casual", "Humorous", "Inspirational", "Educational"];
@@ -250,7 +234,9 @@ const PLATFORM_PILLS = [
 ];
 
 export default function Home() {
-  const { remaining, increment, isLimited } = useRateLimit('socialscribe-usage', 3)
+  const { count: gateCount, showGate, increment: gateIncrement, onRegistered, dismissGate, isRegistered } = useGate('socialscribe', 3)
+  const remaining = Math.max(0, 3 - gateCount)
+  const isLimited = !isRegistered && gateCount >= 3
   const [topic, setTopic] = useState("");
   const [platforms, setPlatforms] = useState<string[]>(["Twitter/X", "LinkedIn"]);
   const [tone, setTone] = useState("Professional");
@@ -267,8 +253,8 @@ export default function Home() {
     setPlatforms((prev) => prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]);
 
   async function generate() {
-    if (isLimited) return
-    increment()
+    const allowed = await gateIncrement()
+    if (!allowed) return
     setLoading(true);
     setApiError(null);
     try {
@@ -317,6 +303,19 @@ export default function Home() {
   }, 0)
 
   return (
+    <>
+    {showGate && (
+      <RegisterGate
+        freeUsed={gateCount}
+        freeLimit={3}
+        freeFeature="calendars"
+        lockedFeature="unlimited calendar generations"
+        accentColor="#06b6d4"
+        site="socialscribe"
+        onSuccess={onRegistered}
+        onDismiss={dismissGate}
+      />
+    )}
     <main className="min-h-screen text-white relative">
       {/* Ambient background */}
       <div className="noise-overlay" aria-hidden="true" />
@@ -707,5 +706,6 @@ export default function Home() {
         </div>
       </section>
     </main>
+    </>
   );
 }
