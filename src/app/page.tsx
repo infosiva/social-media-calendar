@@ -2,6 +2,8 @@
 import { useState, useCallback, useEffect } from "react";
 import { useGate } from '@/lib/shared/useGate'
 import RegisterGate from '@/lib/shared/RegisterGate'
+import { ShimmerButton } from '@/components/magicui/shimmer-button'
+import { NumberTicker } from '@/components/magicui/number-ticker'
 
 const PLATFORMS = ["Twitter/X", "LinkedIn", "Instagram", "Facebook", "TikTok"];
 const TONES = ["Professional", "Casual", "Humorous", "Inspirational", "Educational"];
@@ -509,12 +511,15 @@ export default function Home() {
 
           {/* CTAs */}
           <div className="flex flex-wrap gap-4 justify-center">
-            <button
+            <ShimmerButton
               onClick={() => document.getElementById('generator')?.scrollIntoView({ behavior: 'smooth' })}
-              className="btn-liquid px-8 py-4 rounded-2xl font-black text-base"
-              style={{ background: 'linear-gradient(135deg, #ec4899, #8b5cf6, #3b82f6)', boxShadow: '0 0 40px rgba(236,72,153,0.4), 0 8px 30px rgba(0,0,0,0.4)' }}>
+              borderRadius="1rem"
+              background="rgba(99,102,241,1)"
+              shimmerColor="#f9a8d4"
+              shimmerDuration="2.5s"
+              className="px-8 py-4 font-black text-base shadow-[0_0_40px_rgba(99,102,241,0.5),0_8px_30px_rgba(0,0,0,0.4)]">
               ✦ Generate my calendar free
-            </button>
+            </ShimmerButton>
             <button
               onClick={() => setShowProModal(true)}
               className="px-8 py-4 rounded-2xl font-bold text-base border border-white/15 text-white/70 hover:border-pink-500/40 hover:text-white transition-all">
@@ -742,11 +747,15 @@ export default function Home() {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="p-3 rounded-xl bg-white/[0.03] border border-white/8 text-center">
-                    <div className="text-lg font-black text-white/90">{(totalReach / 1000).toFixed(1)}k</div>
+                    <div className="text-lg font-black text-white/90">
+                      <NumberTicker value={Math.round(totalReach / 100) / 10} decimalPlaces={1} suffix="k" />
+                    </div>
                     <div className="text-[10px] text-white/35">est. total reach</div>
                   </div>
                   <div className="p-3 rounded-xl bg-white/[0.03] border border-white/8 text-center">
-                    <div className="text-lg font-black text-white/90">{posts.length}</div>
+                    <div className="text-lg font-black text-white/90">
+                      <NumberTicker value={posts.length} />
+                    </div>
                     <div className="text-[10px] text-white/35">posts scheduled</div>
                   </div>
                 </div>

@@ -708,4 +708,8 @@ body {
   position: relative;
   overflow: hidden;
 }
+
+/* Magic UI — shimmer animation */
+@keyframes shimmer-slide { to { transform: translate(calc(100cqw - 100%), 0); } }
+.animate-shimmer-slide { animation: shimmer-slide var(--speed, 3s) ease-in-out infinite alternate; }
 .section-liquid > * { position: relative; z-index: 1; }
