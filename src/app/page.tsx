@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useGate } from '@/lib/shared/useGate'
 import RegisterGate from '@/lib/shared/RegisterGate'
 
@@ -14,7 +14,7 @@ const PLATFORM_COLORS: Record<string, string> = {
   "LinkedIn": "text-blue-300 border-blue-500/30 bg-blue-500/10",
   "Instagram": "text-pink-300 border-pink-500/30 bg-pink-500/10",
   "Facebook": "text-indigo-300 border-indigo-500/30 bg-indigo-500/10",
-  "TikTok": "text-red-300 border-red-500/30 bg-red-500/10",
+  "TikTok": "text-fuchsia-300 border-fuchsia-500/30 bg-fuchsia-500/10",
 };
 
 const PLATFORM_BENCHMARKS: Record<string, { reach: [number, number]; engRate: [number, number]; icon: string }> = {
@@ -54,6 +54,40 @@ interface PostIdea {
   platform_tips?: PlatformTips;
 }
 
+// ── Sample post cards shown in hero ──
+const SAMPLE_POSTS: PostIdea[] = [
+  {
+    platform: "Instagram",
+    date: "May 12",
+    time: "9:00 AM",
+    hook: "This one habit changed everything for my content game 🔥",
+    content: "I used to spend 3 hours planning content. Now it takes 30 seconds. Here's the AI system I built that handles my entire month of posts — and it actually sounds like me.",
+    hashtags: ["contentcreator", "socialmediatips", "AItools", "creatoreconomy"],
+    type: "story",
+    engagement_tip: "Post between 8–10am for 2x more morning saves.",
+  },
+  {
+    platform: "Twitter/X",
+    date: "May 13",
+    time: "11:00 AM",
+    hook: "Hot take: consistency beats virality every time.",
+    content: "90% of creators quit before they see results. The ones who win show up every single day — even when nobody's watching. Schedule your content. Build the habit. Win the long game.",
+    hashtags: ["buildinpublic", "creatoreconomy", "growthhacks"],
+    type: "tip",
+    engagement_tip: "Reply to your first 5 comments within 1 hour for major reach boost.",
+  },
+  {
+    platform: "LinkedIn",
+    date: "May 14",
+    time: "8:00 AM",
+    hook: "I generated a month of LinkedIn content in under a minute. Here's what happened.",
+    content: "Dropped it into DraftCal. Selected my tone (Professional), my niche (SaaS marketing), and hit generate. 30 platform-optimized posts — hooks, hashtags, engagement tips. The future of content creation is here.",
+    hashtags: ["marketing", "contentmarketing", "LinkedInTips", "productivityhacks"],
+    type: "promo",
+    engagement_tip: "Add a poll at the end to double your comment rate.",
+  },
+];
+
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
   const copy = useCallback(async () => {
@@ -63,30 +97,36 @@ function CopyButton({ text }: { text: string }) {
   }, [text]);
   return (
     <button onClick={copy}
-      className={`text-xs px-2 py-1 rounded-lg border transition-all ${copied ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-white/10 bg-white/[0.04] text-white/40 hover:text-white hover:border-white/20'}`}>
+      className={`text-xs px-2 py-1 rounded-lg border transition-all ${copied ? 'border-pink-500/40 bg-pink-500/10 text-pink-300' : 'border-white/10 bg-white/[0.04] text-white/40 hover:text-white hover:border-white/20'}`}>
       {copied ? '✓ Copied' : 'Copy'}
     </button>
   );
 }
 
-function ProModal({ onClose }: { onClose: () => void }) {
+function ProModal({ onClose, onCheckout, loading }: { onClose: () => void; onCheckout: () => void; loading: boolean }) {
   return (
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-6">
-      <div className="bg-[#0d0a14] rounded-2xl border border-pink-500/20 p-8 max-w-sm w-full text-center shadow-2xl shadow-pink-500/10">
-        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-2xl mx-auto mb-4 shadow-lg shadow-pink-500/30">✦</div>
-        <h3 className="text-xl font-black mb-2">Schedule to Socials</h3>
+      <div className="rounded-2xl border border-pink-500/20 p-8 max-w-sm w-full text-center shadow-2xl shadow-pink-500/10"
+        style={{ background: 'linear-gradient(135deg, #1a0a2e 0%, #0d0a14 100%)' }}>
+        <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4 shadow-lg shadow-pink-500/30"
+          style={{ background: 'linear-gradient(135deg, #ec4899, #8b5cf6)' }}>✦</div>
+        <h3 className="text-xl font-black mb-2">Go Pro — $10/mo</h3>
         <p className="text-white/50 text-sm mb-5 leading-relaxed">
-          Direct scheduling to Twitter/X, LinkedIn, Instagram, Facebook and TikTok is a Pro feature — connect your accounts and post directly from SocialScribe.
+          Schedule directly to all 5 platforms, unlock unlimited generations, and dominate your content game.
         </p>
         <div className="space-y-2 mb-6 text-left">
-          {['Connect all 5 platforms', 'Auto-post at optimal times', 'Brand voice memory', 'Analytics tracking', 'Bulk CSV export'].map(f => (
-            <div key={f} className="flex items-center gap-2 text-sm text-white/60">
+          {['Unlimited content generations', 'Schedule to all 5 platforms', 'Scheduling links included', 'Full analytics dashboard', 'Team seats'].map(f => (
+            <div key={f} className="flex items-center gap-2 text-sm text-white/70">
               <span className="text-pink-400">✓</span> {f}
             </div>
           ))}
         </div>
-        <button className="w-full py-3 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 font-bold text-sm mb-3 hover:from-pink-500 hover:to-purple-500 transition-all">
-          Upgrade to Pro — $9/mo
+        <button onClick={onCheckout} disabled={loading}
+          className="w-full py-3 rounded-xl font-bold text-sm mb-3 transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          style={{ background: 'linear-gradient(135deg, #ec4899, #8b5cf6)' }}>
+          {loading ? (
+            <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Redirecting...</>
+          ) : 'Upgrade to Pro — $10/mo'}
         </button>
         <button onClick={onClose} className="text-xs text-white/30 hover:text-white/50 transition-colors">
           Maybe later
@@ -96,99 +136,95 @@ function ProModal({ onClose }: { onClose: () => void }) {
   )
 }
 
-function PostCard({ post, index, showAnalytics }: { post: PostIdea; index: number; showAnalytics: boolean }) {
+function PostCard({ post, index, showAnalytics, onSchedule }: { post: PostIdea; index: number; showAnalytics: boolean; onSchedule: () => void }) {
   const [expanded, setExpanded] = useState(false);
-  const [showScheduleModal, setShowScheduleModal] = useState(false);
   const fullText = post.content + (post.hashtags?.length ? '\n' + post.hashtags.map(h => `#${h}`).join(' ') : '');
   const analytics = getAnalytics(post.platform, index);
 
   return (
-    <>
-      {showScheduleModal && <ProModal onClose={() => setShowScheduleModal(false)} />}
-      <div className="reveal-3d rounded-xl border border-white/8 bg-white/[0.025] hover:border-violet-500/30 transition-all group flex flex-col">
-        <div className="p-4 pb-3 flex items-center justify-between">
-          <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${PLATFORM_COLORS[post.platform] || 'text-pink-300 border-pink-500/30 bg-pink-500/10'}`}>
-            {post.platform}
-          </span>
-          <span className="text-[10px] text-white/30">{post.date} · {post.time}</span>
+    <div className="reveal-3d rounded-xl border border-white/8 bg-white/[0.025] hover:border-pink-500/30 transition-all group flex flex-col">
+      <div className="p-4 pb-3 flex items-center justify-between">
+        <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${PLATFORM_COLORS[post.platform] || 'text-pink-300 border-pink-500/30 bg-pink-500/10'}`}>
+          {post.platform}
+        </span>
+        <span className="text-[10px] text-white/30">{post.date} · {post.time}</span>
+      </div>
+
+      {post.hook && (
+        <div className="px-4 pb-2">
+          <p className="text-xs font-semibold text-white/90 leading-snug">&ldquo;{post.hook}&rdquo;</p>
         </div>
+      )}
 
-        {post.hook && (
-          <div className="px-4 pb-2">
-            <p className="text-xs font-semibold text-white/90 leading-snug">&ldquo;{post.hook}&rdquo;</p>
-          </div>
+      <div className="px-4 pb-3 flex-1">
+        <p className={`text-xs text-white/65 leading-relaxed ${!expanded ? 'line-clamp-3' : ''}`}>
+          {post.content}
+        </p>
+        {post.content.length > 160 && (
+          <button onClick={() => setExpanded(e => !e)} className="text-[10px] text-pink-400/70 hover:text-pink-300 mt-1">
+            {expanded ? 'Show less' : 'Show more'}
+          </button>
         )}
+      </div>
 
-        <div className="px-4 pb-3 flex-1">
-          <p className={`text-xs text-white/65 leading-relaxed ${!expanded ? 'line-clamp-3' : ''}`}>
-            {post.content}
-          </p>
-          {post.content.length > 160 && (
-            <button onClick={() => setExpanded(e => !e)} className="text-[10px] text-pink-400/70 hover:text-pink-300 mt-1">
-              {expanded ? 'Show less' : 'Show more'}
-            </button>
-          )}
+      {post.hashtags?.length > 0 && (
+        <div className="px-4 pb-3 flex flex-wrap gap-1">
+          {post.hashtags.map((h, i) => (
+            <span key={i} className="text-[10px] px-1.5 py-0.5 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-400/80">
+              #{h}
+            </span>
+          ))}
         </div>
+      )}
 
-        {post.hashtags?.length > 0 && (
-          <div className="px-4 pb-3 flex flex-wrap gap-1">
-            {post.hashtags.map((h, i) => (
-              <span key={i} className="text-[10px] px-1.5 py-0.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-400/80">
-                #{h}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {showAnalytics && analytics && (
-          <div className="mx-4 mb-3 px-3 py-2 rounded-lg bg-white/[0.03] border border-white/8">
-            <div className="text-[10px] text-white/30 mb-1.5">Estimated reach</div>
-            <div className="flex items-center gap-4">
-              <div className="text-center">
-                <div className="text-sm font-bold text-white/80">{analytics.reach.toLocaleString()}</div>
-                <div className="text-[9px] text-white/30">impressions</div>
-              </div>
-              <div className="text-center">
-                <div className="text-sm font-bold text-emerald-400">{analytics.engRate}%</div>
-                <div className="text-[9px] text-white/30">eng. rate</div>
-              </div>
-              <div className="text-center">
-                <div className="text-sm font-bold text-amber-400">{analytics.engagements}</div>
-                <div className="text-[9px] text-white/30">interactions</div>
-              </div>
-              <div className="ml-auto">
-                <div className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${
-                  analytics.engRate >= 4 ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300' :
-                  analytics.engRate >= 2 ? 'border-amber-500/30 bg-amber-500/10 text-amber-300' :
-                  'border-white/10 text-white/30'
-                }`}>
-                  {analytics.engRate >= 4 ? 'High' : analytics.engRate >= 2 ? 'Medium' : 'Low'}
-                </div>
+      {showAnalytics && analytics && (
+        <div className="mx-4 mb-3 px-3 py-2 rounded-lg bg-white/[0.03] border border-white/8">
+          <div className="text-[10px] text-white/30 mb-1.5">Estimated reach</div>
+          <div className="flex items-center gap-4">
+            <div className="text-center">
+              <div className="text-sm font-bold text-white/80">{analytics.reach.toLocaleString()}</div>
+              <div className="text-[9px] text-white/30">impressions</div>
+            </div>
+            <div className="text-center">
+              <div className="text-sm font-bold text-pink-400">{analytics.engRate}%</div>
+              <div className="text-[9px] text-white/30">eng. rate</div>
+            </div>
+            <div className="text-center">
+              <div className="text-sm font-bold text-purple-400">{analytics.engagements}</div>
+              <div className="text-[9px] text-white/30">interactions</div>
+            </div>
+            <div className="ml-auto">
+              <div className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${
+                analytics.engRate >= 4 ? 'border-pink-500/30 bg-pink-500/10 text-pink-300' :
+                analytics.engRate >= 2 ? 'border-purple-500/30 bg-purple-500/10 text-purple-300' :
+                'border-white/10 text-white/30'
+              }`}>
+                {analytics.engRate >= 4 ? 'High' : analytics.engRate >= 2 ? 'Medium' : 'Low'}
               </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {post.engagement_tip && (
-          <div className="mx-4 mb-3 px-3 py-2 rounded-lg bg-amber-500/8 border border-amber-500/15">
-            <p className="text-[10px] text-amber-300/80 leading-snug">
-              <span className="font-semibold">⚡ Tip:</span> {post.engagement_tip}
-            </p>
-          </div>
-        )}
+      {post.engagement_tip && (
+        <div className="mx-4 mb-3 px-3 py-2 rounded-lg border" style={{ background: 'rgba(139,92,246,0.08)', borderColor: 'rgba(139,92,246,0.2)' }}>
+          <p className="text-[10px] text-purple-300/80 leading-snug">
+            <span className="font-semibold">⚡ Tip:</span> {post.engagement_tip}
+          </p>
+        </div>
+      )}
 
-        <div className="px-4 pb-4 pt-1 border-t border-white/5 flex items-center gap-2">
-          <span className="text-[10px] text-white/25">{TYPE_LABELS[post.type] || post.type}</span>
-          <div className="ml-auto flex gap-1.5">
-            <button onClick={() => setShowScheduleModal(true)}
-              className="text-xs px-2 py-1 rounded-lg border border-white/10 bg-white/[0.04] text-white/30 hover:text-white/60 hover:border-white/20 transition-all">
-              📅 Schedule
-            </button>
-            <CopyButton text={fullText} />
-          </div>
+      <div className="px-4 pb-4 pt-1 border-t border-white/5 flex items-center gap-2">
+        <span className="text-[10px] text-white/25">{TYPE_LABELS[post.type] || post.type}</span>
+        <div className="ml-auto flex gap-1.5">
+          <button onClick={onSchedule}
+            className="text-xs px-2 py-1 rounded-lg border border-white/10 bg-white/[0.04] text-white/30 hover:text-white/60 hover:border-white/20 transition-all">
+            📅 Schedule
+          </button>
+          <CopyButton text={fullText} />
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -211,32 +247,35 @@ function PlatformInsight({ platform, tips }: { platform: string; tips: PlatformT
   );
 }
 
-// Calendar mockup data — days 1-28, Mon-Sun cols, some dots per day
+// Calendar mockup
 const CAL_DAYS = Array.from({ length: 28 }, (_, i) => i + 1);
 const CAL_DOTS: Record<number, string[]> = {
-  1: ['#8b5cf6'], 3: ['#ec4899', '#8b5cf6'], 5: ['#f59e0b'],
-  7: ['#ec4899'], 8: ['#8b5cf6', '#f59e0b'], 10: ['#ec4899'],
-  12: ['#8b5cf6'], 14: ['#ec4899', '#f59e0b'], 15: ['#8b5cf6'],
-  17: ['#f59e0b', '#ec4899'], 19: ['#8b5cf6'], 21: ['#ec4899'],
-  22: ['#8b5cf6', '#f59e0b', '#ec4899'], 24: ['#8b5cf6'],
-  26: ['#ec4899'], 28: ['#f59e0b', '#8b5cf6'],
+  1: ['#8b5cf6'], 3: ['#ec4899', '#8b5cf6'], 5: ['#3b82f6'],
+  7: ['#ec4899'], 8: ['#8b5cf6', '#3b82f6'], 10: ['#ec4899'],
+  12: ['#8b5cf6'], 14: ['#ec4899', '#3b82f6'], 15: ['#8b5cf6'],
+  17: ['#3b82f6', '#ec4899'], 19: ['#8b5cf6'], 21: ['#ec4899'],
+  22: ['#8b5cf6', '#3b82f6', '#ec4899'], 24: ['#8b5cf6'],
+  26: ['#ec4899'], 28: ['#3b82f6', '#8b5cf6'],
 };
-// "This week" = days 8-14 (row 2)
 const THIS_WEEK = new Set([8, 9, 10, 11, 12, 13, 14]);
 const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 const PLATFORM_PILLS = [
   { label: 'Instagram', icon: '📸', color: 'text-pink-300 border-pink-500/30 bg-pink-500/10' },
-  { label: 'TikTok', icon: '♪', color: 'text-red-300 border-red-500/30 bg-red-500/10' },
+  { label: 'TikTok', icon: '♪', color: 'text-fuchsia-300 border-fuchsia-500/30 bg-fuchsia-500/10' },
   { label: 'Twitter/X', icon: '𝕏', color: 'text-sky-300 border-sky-500/30 bg-sky-500/10' },
   { label: 'LinkedIn', icon: 'in', color: 'text-blue-300 border-blue-500/30 bg-blue-500/10' },
   { label: 'Facebook', icon: 'f', color: 'text-indigo-300 border-indigo-500/30 bg-indigo-500/10' },
 ];
 
+// Floating social icon silhouettes for hero bg
+const FLOAT_ICONS = ['📸', '𝕏', '▶', 'in', '♪', '◉', '📣', '🎬', '📅', '✦'];
+
 export default function Home() {
   const { count: gateCount, showGate, increment: gateIncrement, onRegistered, dismissGate, isRegistered } = useGate('socialscribe', 3)
   const remaining = Math.max(0, 3 - gateCount)
   const isLimited = !isRegistered && gateCount >= 3
+
   const [topic, setTopic] = useState("");
   const [platforms, setPlatforms] = useState<string[]>(["Twitter/X", "LinkedIn"]);
   const [tone, setTone] = useState("Professional");
@@ -248,6 +287,32 @@ export default function Home() {
   const [filterType, setFilterType] = useState("All");
   const [showInsights, setShowInsights] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showProModal, setShowProModal] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [isPro, setIsPro] = useState(false);
+
+  // Check upgraded param + localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem('draftcal-pro')
+    if (stored === '1') setIsPro(true)
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('upgraded') === '1') {
+      setIsPro(true)
+      localStorage.setItem('draftcal-pro', '1')
+      window.history.replaceState({}, '', '/')
+    }
+  }, [])
+
+  const handleUpgrade = useCallback(async () => {
+    setCheckoutLoading(true)
+    try {
+      const res = await fetch('/api/stripe/checkout', { method: 'POST' })
+      const data = await res.json()
+      if (data.url) window.location.href = data.url
+    } catch {
+      setCheckoutLoading(false)
+    }
+  }, [])
 
   const togglePlatform = (p: string) =>
     setPlatforms((prev) => prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]);
@@ -310,25 +375,62 @@ export default function Home() {
         freeLimit={3}
         freeFeature="calendars"
         lockedFeature="unlimited calendar generations"
-        accentColor="#06b6d4"
+        accentColor="#ec4899"
         site="socialscribe"
         onSuccess={onRegistered}
         onDismiss={dismissGate}
       />
     )}
-    <main className="min-h-screen text-white relative">
-      {/* Ambient background */}
+    {showProModal && (
+      <ProModal
+        onClose={() => setShowProModal(false)}
+        onCheckout={handleUpgrade}
+        loading={checkoutLoading}
+      />
+    )}
+
+    <main className="min-h-screen text-white relative overflow-x-hidden">
       <div className="noise-overlay" aria-hidden="true" />
-      <div className="liquid-blob liquid-blob-1" style={{ '--theme-primary': '#8b5cf6' } as React.CSSProperties} aria-hidden="true" />
-      <div className="liquid-blob liquid-blob-2" style={{ '--theme-secondary': '#ec4899' } as React.CSSProperties} aria-hidden="true" />
-      <div className="liquid-blob liquid-blob-3" style={{ '--theme-accent': '#f59e0b' } as React.CSSProperties} aria-hidden="true" />
+
+      {/* ── Animated gradient mesh background ── */}
+      <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{
+        background: 'radial-gradient(ellipse 80% 60% at 20% 20%, rgba(236,72,153,0.18) 0%, transparent 60%), radial-gradient(ellipse 70% 50% at 80% 30%, rgba(139,92,246,0.18) 0%, transparent 60%), radial-gradient(ellipse 60% 60% at 50% 80%, rgba(59,130,246,0.15) 0%, transparent 60%), #050510',
+        zIndex: 0,
+      }} />
+
+      {/* Floating social icon silhouettes */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden="true" style={{ zIndex: 0 }}>
+        {FLOAT_ICONS.map((icon, i) => (
+          <span key={i} className="absolute text-white/[0.04] select-none"
+            style={{
+              fontSize: `${24 + (i % 3) * 16}px`,
+              left: `${(i * 137.5) % 100}%`,
+              top: `${(i * 97.3 + 10) % 90}%`,
+              animation: `float ${8 + i * 1.3}s ease-in-out infinite`,
+              animationDelay: `${-i * 1.1}s`,
+              fontFamily: 'system-ui',
+            }}>
+            {icon}
+          </span>
+        ))}
+      </div>
 
       {/* ── Sticky nav ── */}
-      <nav className="sticky top-0 z-50 backdrop-blur-xl bg-gray-950/90 border-b border-white/[0.06]">
+      <nav className="sticky top-0 z-50 backdrop-blur-xl border-b border-white/[0.06]"
+        style={{ background: 'rgba(5,5,16,0.85)' }}>
         <div className="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-xl font-black tracking-tight">📅 ContentCal</span>
-            <span className="pill-glass text-[11px] px-3 py-1 font-semibold">AI Content Planner</span>
+            <span className="text-xl font-black tracking-tight"
+              style={{ background: 'linear-gradient(135deg, #ec4899, #8b5cf6, #3b82f6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              DraftCal
+            </span>
+            <span className="pill-glass text-[11px] px-3 py-1 font-semibold">AI Content Calendar</span>
+            {isPro && (
+              <span className="text-[10px] px-2.5 py-1 rounded-full font-bold"
+                style={{ background: 'linear-gradient(135deg, #ec4899, #8b5cf6)', color: 'white' }}>
+                PRO ✦
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-3">
             {posts.length > 0 && (
@@ -336,10 +438,10 @@ export default function Home() {
                 <button onClick={() => setShowAnalytics(s => !s)}
                   className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
                     showAnalytics
-                      ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
+                      ? 'border-pink-500/40 bg-pink-500/10 text-pink-300'
                       : 'border-white/10 bg-white/[0.04] text-white/50 hover:text-white/80'
                   }`}>
-                  📈 {showAnalytics ? 'Hide analytics' : 'Analytics preview'}
+                  📈 {showAnalytics ? 'Hide analytics' : 'Analytics'}
                 </button>
                 <button onClick={copyAll}
                   className="px-3 py-1.5 rounded-lg border border-white/15 text-xs text-white/60 hover:text-white hover:border-white/30 transition-all">
@@ -347,33 +449,57 @@ export default function Home() {
                 </button>
               </>
             )}
-            <button className="px-4 py-2 rounded-xl text-sm font-bold transition-all hover:opacity-90"
-              style={{ background: 'linear-gradient(135deg, #8b5cf6, #ec4899)' }}>
-              Start free
-            </button>
+            {!isPro ? (
+              <button onClick={() => setShowProModal(true)}
+                className="px-4 py-2 rounded-xl text-sm font-bold transition-all hover:opacity-90"
+                style={{ background: 'linear-gradient(135deg, #ec4899, #8b5cf6)' }}>
+                Go Pro — $10/mo
+              </button>
+            ) : (
+              <span className="px-4 py-2 rounded-xl text-sm font-bold"
+                style={{ background: 'linear-gradient(135deg, rgba(236,72,153,0.2), rgba(139,92,246,0.2))', border: '1px solid rgba(236,72,153,0.3)', color: '#f9a8d4' }}>
+                Pro member ✦
+              </span>
+            )}
           </div>
         </div>
       </nav>
 
-      {/* ── Split hero ── */}
-      <section className="grid md:grid-cols-2 gap-8 items-center min-h-[85vh] px-6 md:px-12 py-12 max-w-7xl mx-auto">
-        {/* Left — copy */}
-        <div className="flex flex-col gap-6">
-          <div>
-            <span className="pill-glass text-xs font-semibold px-3 py-1.5 inline-block mb-5">
-              ✨ 30 days of content in 5 minutes
-            </span>
-            <h1 className="text-4xl md:text-5xl font-black leading-[1.05] mb-4">
-              Never run out of<br />
-              <span className="text-iridescent">content ideas</span>
-            </h1>
-            <p className="text-white/50 text-base leading-relaxed max-w-md">
-              AI generates a full month of social posts tailored to your brand voice.
-            </p>
-          </div>
+      {/* ── Bold hero ── */}
+      <section className="relative z-10 max-w-7xl mx-auto px-6 pt-16 pb-8">
+        {/* Social proof badge */}
+        <div className="flex justify-center mb-6">
+          <span className="pill-glass text-xs font-semibold px-4 py-2 inline-flex items-center gap-2">
+            <span className="text-pink-400">●</span>
+            10,000+ creators use DraftCal · <span className="text-pink-300">Join them free</span>
+          </span>
+        </div>
 
-          {/* Platform pills */}
-          <div className="flex flex-wrap gap-2">
+        <div className="text-center mb-10">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.02] mb-5 tracking-tight">
+            Generate{' '}
+            <span style={{
+              background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}>30 days</span>
+            {' '}of<br />
+            social content in{' '}
+            <span style={{
+              background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}>30 seconds</span>
+            {' '}with AI
+          </h1>
+          <p className="text-white/55 text-lg leading-relaxed max-w-xl mx-auto mb-8">
+            Drop your brand. Pick your platforms. Watch AI fill your entire content calendar with scroll-stopping posts — hooks, hashtags, engagement tips included.
+          </p>
+
+          {/* Platform badge row */}
+          <div className="flex flex-wrap gap-2 justify-center mb-8">
             {PLATFORM_PILLS.map(p => (
               <span key={p.label} className={`pill-glass text-xs font-medium px-3 py-1.5 flex items-center gap-1.5 ${p.color}`}>
                 <span className="font-bold">{p.icon}</span> {p.label}
@@ -382,78 +508,144 @@ export default function Home() {
           </div>
 
           {/* CTAs */}
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-4 justify-center">
             <button
               onClick={() => document.getElementById('generator')?.scrollIntoView({ behavior: 'smooth' })}
-              className="btn-liquid px-6 py-3 rounded-xl font-bold text-sm">
-              Generate my calendar
+              className="btn-liquid px-8 py-4 rounded-2xl font-black text-base"
+              style={{ background: 'linear-gradient(135deg, #ec4899, #8b5cf6, #3b82f6)', boxShadow: '0 0 40px rgba(236,72,153,0.4), 0 8px 30px rgba(0,0,0,0.4)' }}>
+              ✦ Generate my calendar free
             </button>
             <button
-              onClick={() => document.getElementById('generator')?.scrollIntoView({ behavior: 'smooth' })}
-              className="px-6 py-3 rounded-xl font-semibold text-sm border border-white/15 text-white/70 hover:border-white/30 hover:text-white transition-all">
-              See example
+              onClick={() => setShowProModal(true)}
+              className="px-8 py-4 rounded-2xl font-bold text-base border border-white/15 text-white/70 hover:border-pink-500/40 hover:text-white transition-all">
+              See Pro plan — $10/mo →
             </button>
           </div>
         </div>
+      </section>
 
-        {/* Right — calendar mockup */}
-        <div className="glass-liquid rounded-2xl p-5">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-bold text-white/80">May 2025</span>
-            <span className="pill-glass text-[11px] px-2.5 py-1 text-violet-300 font-semibold">This week ✦</span>
-          </div>
-          {/* Day headers */}
-          <div className="grid grid-cols-7 gap-1 mb-1">
-            {DAY_LABELS.map(d => (
-              <div key={d} className="text-center text-[10px] font-semibold text-white/30 py-1">{d}</div>
-            ))}
-          </div>
-          {/* Day cells */}
-          <div className="grid grid-cols-7 gap-1">
-            {CAL_DAYS.map(day => {
-              const dots = CAL_DOTS[day] || [];
-              const isThisWeek = THIS_WEEK.has(day);
-              return (
-                <div key={day}
-                  className={`rounded-lg p-1.5 flex flex-col items-center gap-1 transition-all ${
-                    isThisWeek
-                      ? 'bg-violet-500/20 border border-violet-500/40'
-                      : 'bg-white/[0.03] border border-white/[0.06] hover:border-white/15'
-                  }`}>
-                  <span className={`text-[11px] font-semibold leading-none ${isThisWeek ? 'text-violet-200' : 'text-white/50'}`}>
-                    {day}
-                  </span>
-                  {dots.length > 0 && (
-                    <div className="flex gap-0.5 flex-wrap justify-center">
-                      {dots.map((color, i) => (
-                        <span key={i} className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                          style={{ backgroundColor: color }} />
-                      ))}
-                    </div>
-                  )}
+      {/* ── Two-column: Calendar + Sample Posts ── */}
+      <section className="relative z-10 max-w-7xl mx-auto px-6 pb-16">
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Calendar mockup */}
+          <div className="glass-liquid rounded-2xl p-5">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm font-bold text-white/80">May 2025</span>
+              <span className="pill-glass text-[11px] px-2.5 py-1 font-semibold"
+                style={{ color: '#f472b6' }}>This week ✦</span>
+            </div>
+            <div className="grid grid-cols-7 gap-1 mb-1">
+              {DAY_LABELS.map(d => (
+                <div key={d} className="text-center text-[10px] font-semibold text-white/30 py-1">{d}</div>
+              ))}
+            </div>
+            <div className="grid grid-cols-7 gap-1">
+              {CAL_DAYS.map(day => {
+                const dots = CAL_DOTS[day] || [];
+                const isThisWeek = THIS_WEEK.has(day);
+                return (
+                  <div key={day}
+                    className={`rounded-lg p-1.5 flex flex-col items-center gap-1 transition-all ${
+                      isThisWeek
+                        ? 'border'
+                        : 'bg-white/[0.03] border border-white/[0.06] hover:border-white/15'
+                    }`}
+                    style={isThisWeek ? { background: 'rgba(236,72,153,0.12)', borderColor: 'rgba(236,72,153,0.35)' } : {}}>
+                    <span className={`text-[11px] font-semibold leading-none`}
+                      style={isThisWeek ? { color: '#f9a8d4' } : { color: 'rgba(255,255,255,0.5)' }}>
+                      {day}
+                    </span>
+                    {dots.length > 0 && (
+                      <div className="flex gap-0.5 flex-wrap justify-center">
+                        {dots.map((color, i) => (
+                          <span key={i} className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: color }} />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex items-center gap-4 mt-4 pt-3 border-t border-white/[0.06]">
+              {[['#8b5cf6', 'LinkedIn'], ['#ec4899', 'Instagram'], ['#3b82f6', 'Twitter/X']].map(([color, label]) => (
+                <div key={label} className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
+                  <span className="text-[10px] text-white/40">{label}</span>
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
-          {/* Legend */}
-          <div className="flex items-center gap-4 mt-4 pt-3 border-t border-white/[0.06]">
-            {[['#8b5cf6', 'LinkedIn'], ['#ec4899', 'Instagram'], ['#f59e0b', 'TikTok']].map(([color, label]) => (
-              <div key={label} className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
-                <span className="text-[10px] text-white/40">{label}</span>
-              </div>
+
+          {/* Sample generated post cards */}
+          <div className="space-y-3">
+            <p className="text-xs text-white/35 font-semibold uppercase tracking-widest mb-3">Sample AI-generated posts</p>
+            {SAMPLE_POSTS.map((post, i) => (
+              <PostCard key={i} post={post} index={i} showAnalytics={false} onSchedule={() => setShowProModal(true)} />
             ))}
           </div>
         </div>
       </section>
 
+      {/* ── WHY PRO section ── */}
+      <section className="relative z-10 max-w-7xl mx-auto px-6 pb-16">
+        <div className="rounded-3xl border p-8 md:p-12"
+          style={{ background: 'linear-gradient(135deg, rgba(236,72,153,0.08) 0%, rgba(139,92,246,0.08) 50%, rgba(59,130,246,0.08) 100%)', borderColor: 'rgba(236,72,153,0.2)' }}>
+          <div className="text-center mb-8">
+            <span className="text-xs font-bold uppercase tracking-widest" style={{ color: '#f472b6' }}>WHY PRO</span>
+            <h2 className="text-3xl md:text-4xl font-black mt-2 mb-2">Everything you need to<br />
+              <span style={{ background: 'linear-gradient(135deg, #ec4899, #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                dominate social media
+              </span>
+            </h2>
+            <p className="text-white/40 text-sm">One plan. One price. Unlimited content.</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+            {[
+              { icon: '∞', title: 'Unlimited content', desc: 'Generate as many calendars as you need — no daily caps, no throttling.' },
+              { icon: '📱', title: 'All 5 platforms', desc: 'Twitter/X, LinkedIn, Instagram, TikTok, Facebook — all covered, all optimised.' },
+              { icon: '🔗', title: 'Scheduling links', desc: 'One-click scheduling links for every post. Connect Buffer, Later, or Hootsuite.' },
+              { icon: '📊', title: 'Analytics', desc: 'Full analytics dashboard — track reach, engagement rate, and top-performing content.' },
+              { icon: '👥', title: 'Team seats', desc: 'Invite teammates. Collaborate on your brand calendar in real time.' },
+              { icon: '🧠', title: 'Brand voice memory', desc: 'AI learns your tone and style — every post sounds authentically you.' },
+            ].map(f => (
+              <div key={f.title} className="glass-liquid rounded-xl p-5">
+                <div className="text-2xl mb-3 font-black" style={{ color: '#f472b6' }}>{f.icon}</div>
+                <div className="font-bold text-sm text-white/90 mb-1">{f.title}</div>
+                <div className="text-xs text-white/45 leading-relaxed">{f.desc}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Pricing CTA */}
+          <div className="text-center">
+            <button onClick={() => setShowProModal(true)}
+              className="px-10 py-4 rounded-2xl font-black text-lg transition-all hover:opacity-90 inline-flex items-center gap-3"
+              style={{ background: 'linear-gradient(135deg, #ec4899, #8b5cf6)', boxShadow: '0 0 50px rgba(236,72,153,0.35), 0 8px 30px rgba(0,0,0,0.4)' }}>
+              ✦ Get Pro — $10/mo
+            </button>
+            <p className="text-white/30 text-xs mt-3">Cancel anytime · No contracts · Instant access</p>
+          </div>
+        </div>
+      </section>
+
       {/* ── AI generation section ── */}
-      <section id="generator" className="max-w-7xl mx-auto px-6 pb-24">
+      <section id="generator" className="relative z-10 max-w-7xl mx-auto px-6 pb-24">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-black mb-2">
+            <span style={{ background: 'linear-gradient(135deg, #ec4899, #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              Generate your calendar
+            </span>
+          </h2>
+          <p className="text-white/35 text-sm">{remaining} free generations left today</p>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Config panel */}
           <div className="space-y-5">
             <div className="glass-liquid rounded-2xl p-7">
-              <h2 className="font-bold text-lg mb-5">Configure your calendar</h2>
+              <h3 className="font-bold text-base mb-5">Configure your calendar</h3>
               <div className="space-y-5">
                 <div>
                   <label className="text-xs text-white/50 uppercase tracking-wider mb-2 block">Brand / Topic</label>
@@ -462,7 +654,10 @@ export default function Home() {
                     onChange={(e) => setTopic(e.target.value)}
                     placeholder="e.g. SaaS startup for freelancers, fitness coaching for busy moms..."
                     rows={3}
-                    className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-violet-500/60 transition-all resize-none"
+                    className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none transition-all resize-none"
+                    style={{ focusBorderColor: 'rgba(236,72,153,0.6)' } as React.CSSProperties}
+                    onFocus={e => e.target.style.borderColor = 'rgba(236,72,153,0.5)'}
+                    onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
                   />
                 </div>
 
@@ -473,9 +668,10 @@ export default function Home() {
                       <button key={p} onClick={() => togglePlatform(p)}
                         className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                           platforms.includes(p)
-                            ? "bg-pink-500/20 border border-pink-500/40 text-pink-300"
+                            ? "border text-pink-300"
                             : "bg-white/[0.04] border border-white/10 text-white/50 hover:border-white/20"
-                        }`}>
+                        }`}
+                        style={platforms.includes(p) ? { background: 'rgba(236,72,153,0.15)', borderColor: 'rgba(236,72,153,0.4)' } : {}}>
                         {p}
                       </button>
                     ))}
@@ -489,9 +685,10 @@ export default function Home() {
                       <button key={t} onClick={() => setTone(t)}
                         className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                           tone === t
-                            ? "bg-amber-500/20 border border-amber-500/40 text-amber-300"
+                            ? "border text-purple-300"
                             : "bg-white/[0.04] border border-white/10 text-white/50 hover:border-white/20"
-                        }`}>
+                        }`}
+                        style={tone === t ? { background: 'rgba(139,92,246,0.15)', borderColor: 'rgba(139,92,246,0.4)' } : {}}>
                         {t}
                       </button>
                     ))}
@@ -500,24 +697,28 @@ export default function Home() {
 
                 <div>
                   <label className="text-xs text-white/50 uppercase tracking-wider mb-2 block">
-                    Weeks to generate <span className="text-pink-400">{weeks}w</span>
+                    Weeks to generate <span style={{ color: '#f472b6' }}>{weeks}w</span>
                   </label>
                   <input type="range" min={1} max={4} value={weeks}
                     onChange={(e) => setWeeks(Number(e.target.value))}
-                    className="w-full accent-violet-500" />
+                    className="w-full accent-pink-500" />
                   <div className="flex justify-between text-[10px] text-white/25 mt-1">
                     <span>1w</span><span>2w</span><span>3w</span><span>4w</span>
                   </div>
                 </div>
 
                 {isLimited ? (
-                  <div className="w-full py-3.5 rounded-xl bg-white/[0.04] border border-amber-500/20 text-center">
-                    <p className="text-amber-400 text-sm font-semibold">Daily limit reached (3 free / day)</p>
-                    <p className="text-xs text-amber-700 mt-0.5">Upgrade to Pro for unlimited calendars</p>
+                  <div className="w-full py-3.5 rounded-xl border text-center"
+                    style={{ background: 'rgba(236,72,153,0.06)', borderColor: 'rgba(236,72,153,0.2)' }}>
+                    <p className="text-sm font-semibold" style={{ color: '#f472b6' }}>Daily limit reached (3 free / day)</p>
+                    <button onClick={() => setShowProModal(true)} className="text-xs text-white/50 mt-0.5 hover:text-white transition-colors">
+                      Upgrade to Pro for unlimited →
+                    </button>
                   </div>
                 ) : (
                   <button onClick={generate} disabled={!topic || loading}
-                    className="btn-liquid w-full py-3.5 rounded-xl font-semibold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                    className="w-full py-3.5 rounded-xl font-bold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    style={{ background: 'linear-gradient(135deg, #ec4899, #8b5cf6)', boxShadow: '0 0 25px rgba(236,72,153,0.3)' }}>
                     {loading ? (
                       <>
                         <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -535,7 +736,7 @@ export default function Home() {
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm font-semibold">Analytics preview</span>
                   <button onClick={() => setShowAnalytics(s => !s)}
-                    className={`text-xs px-2.5 py-1 rounded-lg border transition-all ${showAnalytics ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300' : 'border-white/10 text-white/40'}`}>
+                    className={`text-xs px-2.5 py-1 rounded-lg border transition-all ${showAnalytics ? 'border-pink-500/30 bg-pink-500/10 text-pink-300' : 'border-white/10 text-white/40'}`}>
                     {showAnalytics ? 'On' : 'Off'}
                   </button>
                 </div>
@@ -549,9 +750,6 @@ export default function Home() {
                     <div className="text-[10px] text-white/35">posts scheduled</div>
                   </div>
                 </div>
-                <p className="text-[10px] text-white/25 mt-3 leading-relaxed">
-                  Estimates based on platform averages for small creators. Actual reach varies with follower count and posting time.
-                </p>
               </div>
             )}
 
@@ -584,7 +782,7 @@ export default function Home() {
                     <button key={p} onClick={() => setFilterPlatform(p)}
                       className={`text-xs px-3 py-1 rounded-full border transition-all ${
                         filterPlatform === p
-                          ? 'border-violet-500/50 bg-violet-500/15 text-violet-300'
+                          ? 'text-pink-300 border-pink-500/40 bg-pink-500/10'
                           : 'border-white/10 text-white/40 hover:border-white/20 hover:text-white/70'
                       }`}>
                       {p}
@@ -597,26 +795,20 @@ export default function Home() {
                     <button key={t} onClick={() => setFilterType(t)}
                       className={`text-xs px-3 py-1 rounded-full border transition-all ${
                         filterType === t
-                          ? 'border-amber-500/50 bg-amber-500/15 text-amber-300'
+                          ? 'text-purple-300 border-purple-500/40 bg-purple-500/10'
                           : 'border-white/10 text-white/40 hover:border-white/20 hover:text-white/70'
                       }`}>
                       {TYPE_LABELS[t] || t}
                     </button>
                   ))}
                 </div>
-                <button onClick={() => setShowAnalytics(s => !s)}
-                  className={`sm:hidden text-xs px-2.5 py-1 rounded-full border transition-all ${
-                    showAnalytics ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-white/10 text-white/40'
-                  }`}>
-                  📈 Analytics
-                </button>
                 <span className="ml-auto text-xs text-white/30">{filteredPosts.length} posts</span>
               </div>
             )}
 
             {apiError && (
               <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-center mb-4">
-                <p className="text-red-300 font-semibold mb-1">⚠️ Could not generate calendar</p>
+                <p className="text-red-300 font-semibold mb-1">Could not generate calendar</p>
                 <p className="text-red-300/70 text-sm">{apiError}</p>
               </div>
             )}
@@ -624,7 +816,7 @@ export default function Home() {
             {filteredPosts.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {filteredPosts.map((post, i) => (
-                  <PostCard key={i} post={post} index={i} showAnalytics={showAnalytics} />
+                  <PostCard key={i} post={post} index={i} showAnalytics={showAnalytics} onSchedule={() => setShowProModal(true)} />
                 ))}
               </div>
             ) : posts.length > 0 ? (
@@ -634,7 +826,7 @@ export default function Home() {
             ) : (
               <div className="h-full glass-liquid rounded-2xl flex flex-col items-center justify-center py-24 gap-4">
                 <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl"
-                  style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.3), rgba(236,72,153,0.3))', border: '1px solid rgba(139,92,246,0.3)' }}>
+                  style={{ background: 'linear-gradient(135deg, rgba(236,72,153,0.25), rgba(139,92,246,0.25))', border: '1px solid rgba(236,72,153,0.3)' }}>
                   📅
                 </div>
                 <p className="text-white/40 text-sm max-w-xs text-center">
@@ -651,60 +843,60 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Feature grid ── */}
-      <section className="max-w-7xl mx-auto px-6 pb-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { icon: '🤖', title: 'AI Writing', desc: 'Platform-native copy in your brand voice' },
-            { icon: '📊', title: 'Analytics', desc: 'Estimated reach & engagement per post' },
-            { icon: '🗓️', title: 'Visual Calendar', desc: 'See your full month at a glance' },
-            { icon: '🚀', title: 'Auto-Schedule', desc: 'Post at optimal times automatically' },
-          ].map(f => (
-            <div key={f.title} className="glass-liquid reveal-3d rounded-2xl p-5 flex flex-col gap-3">
-              <span className="text-2xl">{f.icon}</span>
-              <div>
-                <div className="font-bold text-sm text-white/90 mb-1">{f.title}</div>
-                <div className="text-xs text-white/45 leading-relaxed">{f.desc}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* ── Pricing section ── */}
-      <section id="pricing" className="border-t border-white/5 px-6 py-20">
+      <section id="pricing" className="relative z-10 border-t border-white/5 px-6 py-20">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="text-4xl font-black tracking-tight mb-2">
-              <span className="text-iridescent">Simple pricing</span>
+              <span style={{ background: 'linear-gradient(135deg, #ec4899, #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                Simple pricing
+              </span>
             </h2>
             <p className="text-white/35 text-sm">3 free calendars per day · No card required</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-px border border-white/10 rounded-2xl overflow-hidden">
-            {[
-              { name: 'Free', price: '$0', sub: 'forever', features: ['3 calendars / day', '5 platforms', 'Up to 4 weeks', 'Engagement tips', 'Analytics preview', 'Copy with 1 click'], cta: 'Current plan', highlight: false },
-              { name: 'Pro', price: '$9', sub: '/month', features: ['Unlimited calendars', 'Schedule directly to socials', 'Brand voice memory', 'Full analytics dashboard', 'Bulk export (CSV)', 'Priority AI speed'], cta: 'Go Pro ✦', highlight: true },
-            ].map(plan => (
-              <div key={plan.name} className={`p-8 ${plan.highlight ? 'bg-gradient-to-br from-violet-950/50 to-pink-950/40' : 'bg-white/[0.02]'}`}>
-                <div className={`text-xs font-bold uppercase tracking-widest mb-1 ${plan.highlight ? 'text-violet-400' : 'text-white/25'}`}>{plan.name}</div>
-                <div className={`text-4xl font-black mb-0.5 ${plan.highlight ? 'text-white' : 'text-white/40'}`}>{plan.price}</div>
-                <div className={`text-sm mb-5 ${plan.highlight ? 'text-pink-500' : 'text-white/20'}`}>{plan.sub}</div>
-                <ul className="space-y-2.5 mb-7">
-                  {plan.features.map(f => (
-                    <li key={f} className={`flex items-start gap-2 text-sm ${plan.highlight ? 'text-white/70' : 'text-white/30'}`}>
-                      <span className={plan.highlight ? 'text-violet-400 mt-0.5' : 'text-white/20 mt-0.5'}>✓</span> {f}
-                    </li>
-                  ))}
-                </ul>
-                <button className={`w-full py-3 rounded-xl text-sm font-bold transition-all ${plan.highlight ? 'hover:opacity-90' : 'border border-white/10 text-white/30 cursor-default'}`}
-                  style={plan.highlight ? { background: 'linear-gradient(135deg, #8b5cf6, #ec4899)' } : {}}>
-                  {plan.cta}
-                </button>
-              </div>
-            ))}
+            <div className="p-8 bg-white/[0.02]">
+              <div className="text-xs font-bold uppercase tracking-widest mb-1 text-white/25">Free</div>
+              <div className="text-4xl font-black mb-0.5 text-white/40">$0</div>
+              <div className="text-sm mb-5 text-white/20">forever</div>
+              <ul className="space-y-2.5 mb-7">
+                {['3 calendars / day', '5 platforms', 'Up to 4 weeks', 'Engagement tips', 'Analytics preview', 'Copy with 1 click'].map(f => (
+                  <li key={f} className="flex items-start gap-2 text-sm text-white/30">
+                    <span className="text-white/20 mt-0.5">✓</span> {f}
+                  </li>
+                ))}
+              </ul>
+              <button className="w-full py-3 rounded-xl text-sm font-bold border border-white/10 text-white/30 cursor-default">
+                Current plan
+              </button>
+            </div>
+            <div className="p-8" style={{ background: 'linear-gradient(135deg, rgba(236,72,153,0.12) 0%, rgba(139,92,246,0.12) 100%)' }}>
+              <div className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: '#f472b6' }}>Pro</div>
+              <div className="text-4xl font-black mb-0.5 text-white">$10</div>
+              <div className="text-sm mb-5" style={{ color: '#ec4899' }}>/month</div>
+              <ul className="space-y-2.5 mb-7">
+                {['Unlimited calendars', 'All 5 platforms', 'Scheduling links', 'Full analytics dashboard', 'Team seats', 'Brand voice memory'].map(f => (
+                  <li key={f} className="flex items-start gap-2 text-sm text-white/70">
+                    <span className="mt-0.5" style={{ color: '#f472b6' }}>✓</span> {f}
+                  </li>
+                ))}
+              </ul>
+              <button onClick={() => setShowProModal(true)}
+                className="w-full py-3 rounded-xl text-sm font-bold transition-all hover:opacity-90"
+                style={{ background: 'linear-gradient(135deg, #ec4899, #8b5cf6)' }}>
+                Go Pro ✦
+              </button>
+            </div>
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="relative z-10 border-t border-white/5 px-6 py-8 text-center">
+        <p className="text-white/25 text-xs">
+          © 2025 DraftCal · <span style={{ color: 'rgba(244,114,182,0.6)' }}>draftcal.app</span>
+        </p>
+      </footer>
     </main>
     </>
   );
