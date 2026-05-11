@@ -4,6 +4,13 @@ import { useGate } from '@/lib/shared/useGate'
 import RegisterGate from '@/lib/shared/RegisterGate'
 import { ShimmerButton } from '@/components/magicui/shimmer-button'
 import { NumberTicker } from '@/components/magicui/number-ticker'
+import GuidedTour, { type TourStep } from '@/components/GuidedTour'
+
+const DRAFTCAL_TOUR: TourStep[] = [
+  { target: '#hero-generate-btn', title: 'Generate your calendar free', icon: '📅', body: 'Pick a topic and platforms — AI writes 30 days of posts in one click. No account needed.', placement: 'bottom' },
+  { target: '#generator', title: 'Customise everything', icon: '✏️', body: 'Choose platforms, tone, and content type. Edit any post before publishing.', placement: 'top' },
+  { target: '#pricing', title: 'Go unlimited', icon: '🚀', body: 'Pro removes daily limits — generate as many calendars as you need.', placement: 'top' },
+]
 
 const PLATFORMS = ["Twitter/X", "LinkedIn", "Instagram", "Facebook", "TikTok"];
 const TONES = ["Professional", "Casual", "Humorous", "Inspirational", "Educational"];
@@ -512,6 +519,7 @@ export default function Home() {
           {/* CTAs */}
           <div className="flex flex-wrap gap-4 justify-center">
             <ShimmerButton
+              id="hero-generate-btn"
               onClick={() => document.getElementById('generator')?.scrollIntoView({ behavior: 'smooth' })}
               borderRadius="1rem"
               background="rgba(99,102,241,1)"
@@ -906,6 +914,7 @@ export default function Home() {
           © 2025 DraftCal · <span style={{ color: 'rgba(244,114,182,0.6)' }}>draftcal.app</span>
         </p>
       </footer>
+      <GuidedTour steps={DRAFTCAL_TOUR} storageKey="draftcal_tour_v1" accentColor="#ec4899" />
     </main>
     </>
   );
