@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useGate } from '@/lib/shared/useGate'
 import RegisterGate from '@/lib/shared/RegisterGate'
 import { ShimmerButton } from '@/components/magicui/shimmer-button'
@@ -145,10 +145,22 @@ function ProModal({ onClose, onCheckout, loading }: { onClose: () => void; onChe
   )
 }
 
+const CHAR_LIMITS: Record<string, number> = {
+  'Twitter/X': 280,
+  'LinkedIn': 3000,
+  'Instagram': 2200,
+  'Facebook': 63206,
+  'TikTok': 2200,
+};
+
 function PostCard({ post, index, showAnalytics, onSchedule }: { post: PostIdea; index: number; showAnalytics: boolean; onSchedule: () => void }) {
   const [expanded, setExpanded] = useState(false);
   const fullText = post.content + (post.hashtags?.length ? '\n' + post.hashtags.map(h => `#${h}`).join(' ') : '');
   const analytics = getAnalytics(post.platform, index);
+  const charLimit = CHAR_LIMITS[post.platform];
+  const charCount = post.content.length;
+  const charPct = charLimit ? Math.min(100, Math.round((charCount / charLimit) * 100)) : null;
+  const charOver = charLimit ? charCount > charLimit : false;
 
   return (
     <div className="reveal-3d rounded-xl border border-white/8 bg-white/[0.025] hover:border-pink-500/30 transition-all group flex flex-col">
@@ -223,6 +235,19 @@ function PostCard({ post, index, showAnalytics, onSchedule }: { post: PostIdea; 
         </div>
       )}
 
+      {charLimit && (
+        <div className="px-4 pb-2 flex items-center gap-2">
+          <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all ${charOver ? 'bg-red-500' : charPct! > 80 ? 'bg-amber-400' : 'bg-pink-500/60'}`}
+              style={{ width: `${charPct}%` }}
+            />
+          </div>
+          <span className={`text-[10px] font-mono tabular-nums ${charOver ? 'text-red-400' : 'text-white/25'}`}>
+            {charCount}{charLimit ? `/${charLimit}` : ''}
+          </span>
+        </div>
+      )}
       <div className="px-4 pb-4 pt-1 border-t border-white/5 flex items-center gap-2">
         <span className="text-[10px] text-white/25">{TYPE_LABELS[post.type] || post.type}</span>
         <div className="ml-auto flex gap-1.5">
@@ -297,6 +322,7 @@ export default function Home() {
   const [showInsights, setShowInsights] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showProModal, setShowProModal] = useState(false);
+  const resultsRef = useRef<HTMLDivElement>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [isPro, setIsPro] = useState(false);
 
@@ -344,6 +370,7 @@ export default function Home() {
         setPosts(data.posts || []);
         setFilterPlatform("All");
         setFilterType("All");
+        setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
       }
     } catch {
       setApiError('Network error. Please check your connection and try again.');
@@ -831,7 +858,7 @@ export default function Home() {
             )}
 
             {filteredPosts.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div ref={resultsRef} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {filteredPosts.map((post, i) => (
                   <PostCard key={i} post={post} index={i} showAnalytics={showAnalytics} onSchedule={() => setShowProModal(true)} />
                 ))}

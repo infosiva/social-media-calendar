@@ -40,13 +40,41 @@ Return JSON: {"posts": [{"platform": "...", "date": "YYYY-MM-DD", "time": "HH:MM
       'best',
     )
 
-    const match = text.match(/\{[\s\S]*\}/);
-    let data = match ? JSON.parse(match[0]) : { posts: [] };
-    if (data.posts) {
-      data.posts = data.posts.map((p: { platform: string }) => ({
-        ...p,
-        platform_tips: PLATFORM_TIPS[p.platform] || null,
-      }));
+    // Try to extract and parse JSON robustly — handle truncated responses
+    let data: { posts?: unknown[] } = { posts: [] };
+    try {
+      // First try: direct JSON parse
+      data = JSON.parse(text);
+    } catch {
+      // Second try: extract JSON object from surrounding text
+      const match = text.match(/\{[\s\S]*\}/);
+      if (match) {
+        try {
+          data = JSON.parse(match[0]);
+        } catch {
+          // Third try: extract partial posts array and close it
+          const arrMatch = text.match(/"posts"\s*:\s*(\[[\s\S]*)/);
+          if (arrMatch) {
+            // Find last complete object by looking for last "}" before a "]" or end
+            const raw = arrMatch[1];
+            const lastBrace = raw.lastIndexOf('}');
+            if (lastBrace !== -1) {
+              try {
+                data = { posts: JSON.parse(raw.slice(0, lastBrace + 1) + ']') };
+              } catch { /* give up, return empty */ }
+            }
+          }
+        }
+      }
+    }
+    if (data.posts && Array.isArray(data.posts)) {
+      data.posts = data.posts.map((p: unknown) => {
+        const post = p as { platform: string };
+        return {
+          ...post,
+          platform_tips: PLATFORM_TIPS[post.platform] || null,
+        };
+      });
     }
     return NextResponse.json(data);
   } catch (err: unknown) {
