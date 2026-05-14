@@ -248,13 +248,18 @@ function PostCard({ post, index, showAnalytics, onSchedule }: { post: PostIdea; 
           </span>
         </div>
       )}
-      <div className="px-4 pb-4 pt-1 border-t border-white/5 flex items-center gap-2">
+      <div className="px-4 pb-4 pt-1 border-t border-white/5 flex items-center gap-2 flex-wrap">
         <span className="text-[10px] text-white/25">{TYPE_LABELS[post.type] || post.type}</span>
-        <div className="ml-auto flex gap-1.5">
+        <div className="ml-auto flex gap-1.5 flex-wrap">
           <button onClick={onSchedule}
             className="text-xs px-2 py-1 rounded-lg border border-white/10 bg-white/[0.04] text-white/30 hover:text-white/60 hover:border-white/20 transition-all">
             📅 Schedule
           </button>
+          {/* WhatsApp share — huge for content creators */}
+          <a href={`https://wa.me/?text=${encodeURIComponent(fullText)}`} target="_blank" rel="noopener noreferrer"
+            className="text-xs px-2 py-1 rounded-lg border border-white/10 bg-white/[0.04] text-white/30 hover:text-white/60 hover:border-white/20 transition-all">
+            💬
+          </a>
           <CopyButton text={fullText} />
         </div>
       </div>
@@ -386,6 +391,21 @@ export default function Home() {
     navigator.clipboard.writeText(text);
   }
 
+  function downloadCSV() {
+    const header = 'Platform,Date,Time,Type,Hook,Content,Hashtags\n'
+    const rows = posts.map(p => [
+      p.platform, p.date, p.time, p.type,
+      `"${(p.hook || '').replace(/"/g, '""')}"`,
+      `"${p.content.replace(/"/g, '""')}"`,
+      `"${(p.hashtags || []).map(h => '#'+h).join(' ')}"`
+    ].join(',')).join('\n')
+    const blob = new Blob([header + rows], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a'); a.href = url
+    a.download = `social-calendar-${new Date().toISOString().slice(0,10)}.csv`
+    a.click(); URL.revokeObjectURL(url)
+  }
+
   const filteredPosts = posts.filter(p => {
     if (filterPlatform !== "All" && p.platform !== filterPlatform) return false;
     if (filterType !== "All" && p.type !== filterType) return false;
@@ -481,7 +501,11 @@ export default function Home() {
                 </button>
                 <button onClick={copyAll}
                   className="px-3 py-1.5 rounded-lg border border-white/15 text-xs text-white/60 hover:text-white hover:border-white/30 transition-all">
-                  Export
+                  Copy All
+                </button>
+                <button onClick={downloadCSV}
+                  className="px-3 py-1.5 rounded-lg border border-white/15 text-xs text-white/60 hover:text-white hover:border-white/30 transition-all flex items-center gap-1">
+                  ⬇️ CSV
                 </button>
               </>
             )}
