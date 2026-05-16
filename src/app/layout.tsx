@@ -37,6 +37,36 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           "applicationCategory": "BusinessApplication", "operatingSystem": "Web",
           "offers": { "@type": "Offer", "price": "0", "priceCurrency": "GBP" }
         })}} />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Calistoga&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+        <style dangerouslySetInnerHTML={{ __html: `
+          :root {
+            --theme-primary: #e11d48;
+            --theme-secondary: #fb7185;
+            --theme-base: #0f0308;
+            --background: #0f0308;
+            --surface-1: #1a0510;
+            --surface-2: #260818;
+            --foreground: #fff1f2;
+            --text-2: #fda4af;
+            --border-default: rgba(225,29,72,0.15);
+            --border-strong: rgba(225,29,72,0.3);
+            --radius: 0.75rem;
+            --radius-lg: 1.25rem;
+            --radius-xl: 2rem;
+          }
+          body { font-family: 'Inter', system-ui, sans-serif !important; }
+          h1, h2, h3, .display { font-family: 'Calistoga', serif !important; letter-spacing: -0.02em; }
+          .glass {
+            background: rgba(15,3,8,0.65) !important;
+            border-color: rgba(225,29,72,0.12) !important;
+          }
+          /* Platform tag accent colours */
+          .platform-twitter  { color: #38bdf8; background: rgba(56,189,248,0.08); border-color: rgba(56,189,248,0.2); }
+          .platform-linkedin { color: #818cf8; background: rgba(129,140,248,0.08); border-color: rgba(129,140,248,0.2); }
+          .platform-instagram{ color: #f472b6; background: rgba(244,114,182,0.08); border-color: rgba(244,114,182,0.2); }
+        `}} />
       </head>
       <body className="flex flex-col min-h-screen">
         <AnimatedBackground />
