@@ -526,17 +526,17 @@ export default function Home() {
       </nav>
 
       {/* ── Bold hero ── */}
-      <section className="relative z-10 max-w-7xl mx-auto px-6 pt-16 pb-8">
-        {/* Social proof badge */}
-        <div className="flex justify-center mb-6">
-          <span className="pill-glass text-xs font-semibold px-4 py-2 inline-flex items-center gap-2">
+      <section className="relative z-10 max-w-7xl mx-auto px-6 pt-10 pb-6">
+        {/* Badge */}
+        <div className="flex justify-center mb-5">
+          <span className="pill-glass text-xs font-semibold px-4 py-1.5 inline-flex items-center gap-2">
             <span className="text-pink-400">●</span>
-            10,000+ creators use DraftCal · <span className="text-pink-300">Join them free</span>
+            Free to generate · No account needed
           </span>
         </div>
 
-        <div className="text-center mb-10">
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.02] mb-5 tracking-tight">
+        <div className="text-center mb-8">
+          <h1 className="font-black leading-[1.02] mb-4 tracking-tight" style={{ fontSize:'clamp(2.2rem, 6vw, 4.5rem)' }}>
             Generate{' '}
             <span style={{
               background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%)',
@@ -959,14 +959,114 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── VS COMPETITORS ── */}
+      <section className="relative z-10 max-w-4xl mx-auto px-6 pb-16">
+        <div className="text-center mb-8">
+          <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color:'#f472b6' }}>How we compare</p>
+          <h2 className="text-2xl font-black text-white" style={{ letterSpacing:'-0.02em' }}>AI generation vs. manual scheduling</h2>
+        </div>
+        <div style={{ overflowX:'auto' }}>
+          <table style={{ width:'100%', borderCollapse:'collapse', fontSize:13, color:'rgba(255,255,255,0.7)' }}>
+            <thead>
+              <tr style={{ borderBottom:'1px solid rgba(255,255,255,0.08)' }}>
+                {['Feature','DraftCal','Buffer','Later','Hootsuite'].map((h,i) => (
+                  <th key={h} style={{ padding:'10px 12px', textAlign:'left', fontSize:11, fontWeight:700, letterSpacing:'0.06em', textTransform:'uppercase', color: i===1 ? '#f472b6' : 'rgba(255,255,255,0.3)' }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                ['AI content generation','✓ Full month','✗','✗','Partial'],
+                ['Platform-specific hooks & hashtags','✓ Auto','Manual','Manual','Manual'],
+                ['Engagement tips per post','✓ Built-in','✗','✗','✗'],
+                ['Content calendar (30 days)','✓ In seconds','Manual','Manual','Manual'],
+                ['Free tier','3/day','3 channels','1 profile','30 days'],
+                ['Price (pro)','$10/mo','$18/mo','$18/mo','$99/mo'],
+              ].map(row => (
+                <tr key={row[0]} style={{ borderBottom:'1px solid rgba(255,255,255,0.05)' }}>
+                  {row.map((cell,i) => (
+                    <td key={i} style={{ padding:'10px 12px', fontWeight: i===0 ? 600 : 400, color: i===1 ? (cell==='✓ Full month'||cell==='✓ Auto'||cell==='✓ Built-in'||cell==='✓ In seconds'||cell==='3/day'||cell==='$10/mo' ? '#34d399' : 'rgba(255,255,255,0.6)') : (cell==='✗' ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.5)') }}>
+                      {cell}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="relative z-10 border-t border-white/5 px-6 py-8 text-center">
-        <p className="text-white/25 text-xs">
-          © 2025 DraftCal · <span style={{ color: 'rgba(244,114,182,0.6)' }}>draftcal.app</span>
-        </p>
+      <footer className="relative z-10 border-t border-white/5 px-6 py-10">
+        <div style={{ maxWidth:960, margin:'0 auto', display:'flex', flexWrap:'wrap', justifyContent:'space-between', gap:24, marginBottom:20 }}>
+          <div>
+            <div style={{ fontSize:16, fontWeight:900, background:'linear-gradient(135deg,#ec4899,#8b5cf6,#3b82f6)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', marginBottom:6 }}>DraftCal</div>
+            <p style={{ fontSize:12, color:'rgba(255,255,255,0.25)', maxWidth:200, lineHeight:1.6 }}>AI-powered social media calendar for creators and brands.</p>
+          </div>
+          <div style={{ display:'flex', gap:36, flexWrap:'wrap' }}>
+            <div>
+              <p style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.2)', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:10 }}>Product</p>
+              <div style={{ display:'flex', flexDirection:'column', gap:7 }}>
+                {['Calendar generator','Pricing','Integrations'].map(l=>(
+                  <a key={l} style={{ fontSize:12, color:'rgba(255,255,255,0.35)', textDecoration:'none', cursor:'pointer' }}>{l}</a>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.2)', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:10 }}>Company</p>
+              <div style={{ display:'flex', flexDirection:'column', gap:7 }}>
+                {['About','Privacy','Cookie policy','Terms'].map(l=>(
+                  <a key={l} style={{ fontSize:12, color:'rgba(255,255,255,0.35)', textDecoration:'none', cursor:'pointer' }}>{l}</a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style={{ paddingTop:16, borderTop:'1px solid rgba(255,255,255,0.05)', display:'flex', justifyContent:'space-between', flexWrap:'wrap', gap:10 }}>
+          <p style={{ fontSize:11, color:'rgba(255,255,255,0.2)' }}>© {new Date().getFullYear()} DraftCal · draftcal.app</p>
+          <div style={{ display:'flex', gap:16 }}>
+            {['Privacy','Cookies','Terms'].map(l=>(
+              <a key={l} style={{ fontSize:11, color:'rgba(255,255,255,0.2)', textDecoration:'none', cursor:'pointer' }}>{l}</a>
+            ))}
+          </div>
+        </div>
       </footer>
+
+      <DraftCalCookieBanner />
       <GuidedTour steps={DRAFTCAL_TOUR} storageKey="draftcal_tour_v1" accentColor="#ec4899" />
     </main>
     </>
   );
+}
+
+function DraftCalCookieBanner() {
+  const [visible, setVisible] = useState(false)
+  useEffect(() => {
+    if (!localStorage.getItem('dc_cookies_ok')) setVisible(true)
+  }, [])
+  if (!visible) return null
+  return (
+    <div style={{ position:'fixed', bottom:0, left:0, right:0, zIndex:200, padding:'12px 24px',
+      background:'rgba(10,6,25,0.97)', borderTop:'1px solid rgba(236,72,153,0.2)',
+      backdropFilter:'blur(16px)', display:'flex', alignItems:'center', justifyContent:'space-between',
+      gap:16, flexWrap:'wrap' }}>
+      <p style={{ fontSize:12, color:'rgba(255,255,255,0.45)', maxWidth:600, lineHeight:1.5 }}>
+        We use essential cookies to keep DraftCal running. No tracking cookies, no third-party ads.{' '}
+        <a style={{ color:'#f472b6', textDecoration:'underline', cursor:'pointer' }}>Cookie policy</a>
+      </p>
+      <div style={{ display:'flex', gap:10 }}>
+        <button onClick={() => { localStorage.setItem('dc_cookies_ok','1'); setVisible(false) }}
+          style={{ fontSize:12, fontWeight:700, padding:'7px 20px', borderRadius:8,
+            background:'linear-gradient(135deg,#ec4899,#8b5cf6)', color:'#fff', border:'none', cursor:'pointer' }}>
+          Accept
+        </button>
+        <button onClick={() => setVisible(false)}
+          style={{ fontSize:12, fontWeight:500, padding:'7px 14px', borderRadius:8,
+            background:'transparent', color:'rgba(255,255,255,0.3)',
+            border:'1px solid rgba(255,255,255,0.1)', cursor:'pointer' }}>
+          Decline
+        </button>
+      </div>
+    </div>
+  )
 }
