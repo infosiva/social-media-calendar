@@ -76,6 +76,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Footer siteName="DraftCal" />
         <ChatBot />
       <CookieConsent />
+        {/* eslint-disable-next-line @next/next/no-before-interactive-script-outside-document */}
+        <script src="http://31.97.56.148:3098/t.js" data-site="draftcal.app" defer></script>
       </body>
     </html>
   )
