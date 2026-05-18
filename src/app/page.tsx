@@ -4,6 +4,7 @@ import { useGate } from '@/lib/shared/useGate'
 import RegisterGate from '@/lib/shared/RegisterGate'
 import { ShimmerButton } from '@/components/magicui/shimmer-button'
 import { NumberTicker } from '@/components/magicui/number-ticker'
+import DraftCalAffiliates from '@/components/DraftCalAffiliates'
 import GuidedTour, { type TourStep } from '@/components/GuidedTour'
 
 const DRAFTCAL_TOUR: TourStep[] = [
@@ -957,6 +958,11 @@ export default function Home() {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* ── Contextual Affiliates ── */}
+      <section className="relative z-10 max-w-4xl mx-auto px-6 pb-16">
+        <DraftCalAffiliates />
       </section>
 
       {/* ── VS COMPETITORS ── */}
