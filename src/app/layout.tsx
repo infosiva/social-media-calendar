@@ -1,3 +1,4 @@
+import Script from 'next/script'
 import type { Metadata } from 'next'
 import './globals.css'
 import SharedNavbar from '@/components/SharedNavbar'
@@ -78,6 +79,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <CookieConsent />
         {/* eslint-disable-next-line @next/next/no-before-interactive-script-outside-document */}
         <script src="http://31.97.56.148:3098/t.js" data-site="draftcal.app" defer></script>
+            <Script async src="http://31.97.56.148:3100/script.js" data-website-id="4d705d06-cb56-450e-ad4a-249bb6cd138b" strategy="afterInteractive" />
       </body>
     </html>
   )
