@@ -1,65 +1,101 @@
-import type { Metadata } from "next";
+import type { Metadata } from "next"
+import { siteConfig } from "@/site.config"
 
 export const metadata: Metadata = {
-  title: "About | DraftCal",
-  description: "About DraftCal — AI social media calendar — plan, generate and schedule posts across all platforms.",
+  title: `About | ${siteConfig.name}`,
+  description: `About ${siteConfig.name} — ${siteConfig.seo.description}`,
   robots: { index: true, follow: true },
-};
+  alternates: { canonical: `${siteConfig.url}/about` },
+}
 
 export default function AboutPage() {
   return (
-    <main className="max-w-3xl mx-auto px-4 py-16 text-sm leading-relaxed">
-      <h1 className="text-3xl font-bold mb-6">About DraftCal</h1>
+    <main className="min-h-screen text-white relative overflow-x-hidden">
+      <div className="max-w-3xl mx-auto px-6 py-20">
+        {/* Header */}
+        <div className="mb-12" style={{ animation: 'fadeSlideUp 0.6s ease-out both' }}>
+          <span className="text-xs font-bold uppercase tracking-widest mb-4 block" style={{ color: '#f472b6' }}>
+            About {siteConfig.name}
+          </span>
+          <h1 className="text-4xl md:text-5xl font-black mb-4 leading-tight">
+            Built for creators who want to{' '}
+            <span style={{ background: 'linear-gradient(135deg, #ec4899, #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              ship content, not wrestle with it
+            </span>
+          </h1>
+          <p className="text-white/55 text-lg leading-relaxed">
+            {siteConfig.description}
+          </p>
+        </div>
 
-      <section className="mb-8">
-        <p className="text-base leading-7">AI social media calendar — plan, generate and schedule posts across all platforms.</p>
-      </section>
+        {/* Mission */}
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-8 mb-8" style={{ animation: 'fadeSlideUp 0.6s 0.1s ease-out both' }}>
+          <h2 className="text-xl font-bold mb-3">Our mission</h2>
+          <p className="text-white/55 leading-relaxed">
+            Content creation should be about creativity, not scheduling drudgery. {siteConfig.name} uses AI to handle the heavy lifting — drafting posts, optimising for each platform, and suggesting the best times to publish — so you can focus on building your brand.
+          </p>
+        </div>
 
-      <section className="mb-8">
-        <h2 className="text-lg font-semibold mb-3">What We Offer</h2>
-        <p>
-          DraftCal is a free service built to make productivity more accessible through the power of artificial intelligence.
-          Our tools are designed to be intuitive, fast and available to everyone — no subscription required to get started.
-        </p>
-      </section>
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-4 mb-8" style={{ animation: 'fadeSlideUp 0.6s 0.2s ease-out both' }}>
+          {[
+            { value: siteConfig.stats.posts, label: 'Posts generated' },
+            { value: siteConfig.stats.creators, label: 'Creators trust us' },
+            { value: siteConfig.stats.platforms, label: 'Platforms supported' },
+          ].map(s => (
+            <div key={s.label} className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-5 text-center">
+              <div className="text-2xl font-black text-white mb-1">{s.value}</div>
+              <div className="text-xs text-white/40">{s.label}</div>
+            </div>
+          ))}
+        </div>
 
-      <section className="mb-8">
-        <h2 className="text-lg font-semibold mb-3">Built with AI</h2>
-        <p>
-          We use state-of-the-art AI models to deliver personalised, high-quality results. Our systems
-          are continuously improving based on user feedback and the latest advances in AI research.
-          All AI-generated content is clearly presented as such — we believe in transparency.
-        </p>
-      </section>
+        {/* How it works */}
+        <div className="mb-8" style={{ animation: 'fadeSlideUp 0.6s 0.3s ease-out both' }}>
+          <h2 className="text-xl font-bold mb-5">How it works</h2>
+          <div className="space-y-4">
+            {[
+              { step: '1', title: 'Describe your brand', desc: 'Tell DraftCal your niche, tone, and target audience in a sentence.' },
+              { step: '2', title: 'Choose platforms & tone', desc: 'Select which platforms to optimise for — Twitter/X, LinkedIn, Instagram, TikTok, or Facebook.' },
+              { step: '3', title: 'Generate your calendar', desc: 'AI writes 30 days of posts instantly — hooks, hashtags, engagement tips, and best post times included.' },
+            ].map(item => (
+              <div key={item.step} className="flex gap-4 p-5 rounded-xl border border-white/[0.06] bg-white/[0.015]">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-black flex-shrink-0"
+                  style={{ background: 'linear-gradient(135deg, #ec4899, #8b5cf6)', color: 'white' }}>
+                  {item.step}
+                </div>
+                <div>
+                  <div className="font-semibold text-sm mb-1">{item.title}</div>
+                  <div className="text-white/50 text-sm leading-relaxed">{item.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
-      <section className="mb-8">
-        <h2 className="text-lg font-semibold mb-3">Privacy First</h2>
-        <p>
-          We collect only the data necessary to provide the service. We do not sell your data to third
-          parties. See our{" "}
-          <a href="/privacy" className="underline">Privacy Policy</a> for full details.
-        </p>
-      </section>
+        {/* Contact */}
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-8 mb-8" style={{ animation: 'fadeSlideUp 0.6s 0.35s ease-out both' }}>
+          <h2 className="text-xl font-bold mb-3">Get in touch</h2>
+          <p className="text-white/55 leading-relaxed mb-2">
+            Feedback, bug reports, or partnership enquiries are all welcome.
+          </p>
+          <a href="mailto:info.siva@gmail.com" className="text-pink-400 hover:text-pink-300 transition-colors text-sm">
+            info.siva@gmail.com
+          </a>
+          {' '}<span className="text-white/30 text-sm">·</span>{' '}
+          <a href="/contact" className="text-pink-400 hover:text-pink-300 transition-colors text-sm">Contact page</a>
+        </div>
 
-      <section className="mb-8">
-        <h2 className="text-lg font-semibold mb-3">Advertising</h2>
-        <p>
-          DraftCal is supported by advertising through Google AdSense. Ads help us keep the service
-          free for everyone. We work to ensure ads are relevant and non-intrusive.
-        </p>
-      </section>
-
-      <section className="mb-8">
-        <h2 className="text-lg font-semibold mb-3">Get in Touch</h2>
-        <p>
-          We&apos;d love to hear from you — feedback, bug reports or partnership enquiries are all welcome.
-          Reach us at{" "}
-          <a href="mailto:info.siva@gmail.com" className="underline">info.siva@gmail.com</a> or use our{" "}
-          <a href="/contact" className="underline">contact page</a>.
-        </p>
-      </section>
-
-      <p className="mt-10 opacity-40 text-xs">© 2026 DraftCal. All rights reserved.</p>
+        {/* CTA */}
+        <div className="text-center" style={{ animation: 'fadeSlideUp 0.6s 0.4s ease-out both' }}>
+          <a href="/#generator"
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-base transition-all hover:opacity-90"
+            style={{ background: 'linear-gradient(135deg, #ec4899, #8b5cf6)', boxShadow: '0 0 40px rgba(236,72,153,0.3)' }}>
+            Generate your calendar free →
+          </a>
+          <p className="text-white/25 text-xs mt-3">No account required · 3 free per day</p>
+        </div>
+      </div>
     </main>
-  );
+  )
 }

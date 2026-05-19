@@ -4,20 +4,27 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 
 const ACCENT = '#ec4899'
 const BOT_NAME = 'DraftBot'
-const WELCOME = '✦ Hi! I\'m DraftBot — your AI content strategist. Ask me for post ideas, hook formulas, hashtag strategy, or how to grow your audience on any platform!'
+const WELCOME = "Hi! I can draft social media posts for you. What's your niche or topic today?"
 const SYSTEM_PROMPT = `You are DraftBot, the AI content assistant for DraftCal — an AI social media calendar generator.
-Help users brainstorm content ideas, improve their posts, understand platform best practices, and get the most from their content calendar.
-Be creative, practical, and enthusiastic about social media growth.`
+Help users plan their content calendar: brainstorm post ideas, write hooks, suggest hashtags, advise on platform best practices (Twitter/X, LinkedIn, Instagram, TikTok, Facebook), and help them get the most from their content calendar.
+Be creative, practical, and enthusiastic about social media growth. Keep responses concise and actionable.`
 
 interface Message { role: 'user' | 'assistant'; content: string }
 
 export default function ChatBot() {
+  const [shown, setShown] = useState(false)
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([{ role: 'assistant', content: WELCOME }])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  // 30s delay before showing chatbot button
+  useEffect(() => {
+    const t = setTimeout(() => setShown(true), 30000)
+    return () => clearTimeout(t)
+  }, [])
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages, loading])
   useEffect(() => { if (open) setTimeout(() => inputRef.current?.focus(), 100) }, [open])
@@ -53,6 +60,8 @@ export default function ChatBot() {
   }, [input, loading, messages])
 
   const onKey = (e: React.KeyboardEvent) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }
+
+  if (!shown) return null
 
   return (
     <>

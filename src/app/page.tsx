@@ -6,6 +6,7 @@ import { ShimmerButton } from '@/components/magicui/shimmer-button'
 import { NumberTicker } from '@/components/magicui/number-ticker'
 import DraftCalAffiliates from '@/components/DraftCalAffiliates'
 import GuidedTour, { type TourStep } from '@/components/GuidedTour'
+import { siteConfig } from '@/site.config'
 
 const DRAFTCAL_TOUR: TourStep[] = [
   { target: '#hero-generate-btn', title: 'Generate your calendar free', icon: '📅', body: 'Pick a topic and platforms — AI writes 30 days of posts in one click. No account needed.', placement: 'bottom' },
@@ -332,7 +333,7 @@ export default function Home() {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [isPro, setIsPro] = useState(false);
 
-  // Check upgraded param + localStorage on mount
+  // Check upgraded param + localStorage on mount; fire user stats
   useEffect(() => {
     const stored = localStorage.getItem('draftcal-pro')
     if (stored === '1') setIsPro(true)
@@ -342,6 +343,17 @@ export default function Home() {
       localStorage.setItem('draftcal-pro', '1')
       window.history.replaceState({}, '', '/')
     }
+    // User stats — fire and forget
+    fetch('http://31.97.56.148:3099/api/stats', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        site: 'draftcal.app',
+        path: window.location.pathname,
+        userAgent: navigator.userAgent,
+        timestamp: new Date().toISOString(),
+      }),
+    }).catch(() => {/* ignore — fire and forget */})
   }, [])
 
   const handleUpgrade = useCallback(async () => {
@@ -529,7 +541,7 @@ export default function Home() {
       {/* ── Bold hero ── */}
       <section className="relative z-10 max-w-7xl mx-auto px-6 pt-10 pb-6">
         {/* Badge */}
-        <div className="flex justify-center mb-5">
+        <div className="flex justify-center mb-5" style={{ animation: 'fadeSlideUp 0.5s ease-out both' }}>
           <span className="pill-glass text-xs font-semibold px-4 py-1.5 inline-flex items-center gap-2">
             <span className="text-pink-400">●</span>
             Free to generate · No account needed
@@ -537,7 +549,7 @@ export default function Home() {
         </div>
 
         <div className="text-center mb-8">
-          <h1 className="font-black leading-[1.02] mb-4 tracking-tight" style={{ fontSize:'clamp(2.2rem, 6vw, 4.5rem)' }}>
+          <h1 className="font-black leading-[1.02] mb-4 tracking-tight" style={{ fontSize:'clamp(2.2rem, 6vw, 4.5rem)', animation: 'fadeSlideUp 0.6s 0.1s ease-out both' }}>
             Generate{' '}
             <span style={{
               background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%)',
@@ -555,12 +567,12 @@ export default function Home() {
             }}>30 seconds</span>
             {' '}with AI
           </h1>
-          <p className="text-white/55 text-lg leading-relaxed max-w-xl mx-auto mb-8">
+          <p className="text-white/55 text-lg leading-relaxed max-w-xl mx-auto mb-8" style={{ animation: 'fadeSlideUp 0.6s 0.2s ease-out both' }}>
             Drop your brand. Pick your platforms. Watch AI fill your entire content calendar with scroll-stopping posts — hooks, hashtags, engagement tips included.
           </p>
 
           {/* Platform badge row */}
-          <div className="flex flex-wrap gap-2 justify-center mb-8">
+          <div className="flex flex-wrap gap-2 justify-center mb-8" style={{ animation: 'fadeSlideUp 0.6s 0.3s ease-out both' }}>
             {PLATFORM_PILLS.map(p => (
               <span key={p.label} className={`pill-glass text-xs font-medium px-3 py-1.5 flex items-center gap-1.5 ${p.color}`}>
                 <span className="font-bold">{p.icon}</span> {p.label}
@@ -569,7 +581,7 @@ export default function Home() {
           </div>
 
           {/* CTAs */}
-          <div className="flex flex-wrap gap-4 justify-center">
+          <div className="flex flex-wrap gap-4 justify-center" style={{ animation: 'fadeSlideUp 0.6s 0.4s ease-out both' }}>
             <ShimmerButton
               id="hero-generate-btn"
               onClick={() => document.getElementById('generator')?.scrollIntoView({ behavior: 'smooth' })}
@@ -585,6 +597,26 @@ export default function Home() {
               className="px-8 py-4 rounded-2xl font-bold text-base border border-white/15 text-white/70 hover:border-pink-500/40 hover:text-white transition-all">
               See Pro plan — $10/mo →
             </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Stats Bar ── */}
+      <section className="relative z-10 max-w-7xl mx-auto px-6 pb-8" style={{ animation: 'fadeSlideUp 0.6s 0.5s ease-out both' }}>
+        <div className="flex flex-wrap items-center justify-center gap-8 py-6 border-y border-white/[0.06]">
+          <div className="text-center">
+            <div className="text-3xl font-black text-white">{siteConfig.stats.posts}</div>
+            <div className="text-xs text-white/40 mt-1">Posts generated</div>
+          </div>
+          <div className="w-px h-10 bg-white/10 hidden sm:block" />
+          <div className="text-center">
+            <div className="text-3xl font-black text-white">{siteConfig.stats.creators}</div>
+            <div className="text-xs text-white/40 mt-1">Creators using DraftCal</div>
+          </div>
+          <div className="w-px h-10 bg-white/10 hidden sm:block" />
+          <div className="text-center">
+            <div className="text-3xl font-black" style={{ background: 'linear-gradient(135deg, #ec4899, #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{siteConfig.stats.platforms}</div>
+            <div className="text-xs text-white/40 mt-1">Platforms supported</div>
           </div>
         </div>
       </section>
@@ -1013,16 +1045,16 @@ export default function Home() {
             <div>
               <p style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.2)', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:10 }}>Product</p>
               <div style={{ display:'flex', flexDirection:'column', gap:7 }}>
-                {['Calendar generator','Pricing','Integrations'].map(l=>(
-                  <a key={l} style={{ fontSize:12, color:'rgba(255,255,255,0.35)', textDecoration:'none', cursor:'pointer' }}>{l}</a>
+                {[['Calendar generator','/#generator'],['Pricing','/#pricing'],['About','/about']].map(([l,href])=>(
+                  <a key={l} href={href} style={{ fontSize:12, color:'rgba(255,255,255,0.35)', textDecoration:'none', cursor:'pointer' }}>{l}</a>
                 ))}
               </div>
             </div>
             <div>
               <p style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.2)', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:10 }}>Company</p>
               <div style={{ display:'flex', flexDirection:'column', gap:7 }}>
-                {['About','Privacy','Cookie policy','Terms'].map(l=>(
-                  <a key={l} style={{ fontSize:12, color:'rgba(255,255,255,0.35)', textDecoration:'none', cursor:'pointer' }}>{l}</a>
+                {[['About','/about'],['Privacy','/privacy'],['Cookie policy','/cookies'],['Terms','/terms']].map(([l,href])=>(
+                  <a key={l} href={href} style={{ fontSize:12, color:'rgba(255,255,255,0.35)', textDecoration:'none', cursor:'pointer' }}>{l}</a>
                 ))}
               </div>
             </div>
@@ -1031,8 +1063,8 @@ export default function Home() {
         <div style={{ paddingTop:16, borderTop:'1px solid rgba(255,255,255,0.05)', display:'flex', justifyContent:'space-between', flexWrap:'wrap', gap:10 }}>
           <p style={{ fontSize:11, color:'rgba(255,255,255,0.2)' }}>© {new Date().getFullYear()} DraftCal · draftcal.app</p>
           <div style={{ display:'flex', gap:16 }}>
-            {['Privacy','Cookies','Terms'].map(l=>(
-              <a key={l} style={{ fontSize:11, color:'rgba(255,255,255,0.2)', textDecoration:'none', cursor:'pointer' }}>{l}</a>
+            {[['Privacy','/privacy'],['Cookies','/cookies'],['Terms','/terms']].map(([l,href])=>(
+              <a key={l} href={href} style={{ fontSize:11, color:'rgba(255,255,255,0.2)', textDecoration:'none', cursor:'pointer' }}>{l}</a>
             ))}
           </div>
         </div>
